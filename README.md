@@ -5,6 +5,7 @@ Files taken from PSAR project of SECURED repository some files are not the final
 Dependecies missing
 
 To configure SQL:
+
 	mysql -u root -p
         mysql> CREATE DATABASE VNF_repository;
         mysql> GRANT ALL PRIVILEGES ON VNF_repository.* TO 'vnfRepo'@'localhost' \
@@ -14,6 +15,7 @@ To configure SQL:
         mysql> exit
 
 To launch:
+
 	python manage.py makemigrations
 	python manage.py migrate
 	python manage.py runserver IP_ADDR:PORT_NUM
