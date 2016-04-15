@@ -63,9 +63,9 @@ DATABASES = {
     'default': {
  
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME':'VNF repository',
-        'USER': os.getenv('DATABASE_USER','DB_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASS', 'DB_PASS'),
+        'NAME':'VNF_repository',
+        'USER': 'vnfRepo',
+        'PASSWORD': 'vnfPass',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }

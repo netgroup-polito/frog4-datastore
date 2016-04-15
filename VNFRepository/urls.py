@@ -1,6 +1,5 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from v1status.views import v1Status
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 urlpatterns = patterns('',
 	# Examples:

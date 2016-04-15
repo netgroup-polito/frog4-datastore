@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import Http404
-from django.http import Http501
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -41,13 +40,13 @@ class VNFTemplate(APIView):
 		"""
 		Update or create a new VNF template
 		"""
-		raise Http501()
+		return HttpResponse(status=501)
 
 	def delete(self, request, vnf_id):
 		"""
 		Delete an existig VNF template
 		"""
-		raise Http501()
+		return HttpResponse(status=501)
 
 
 class VNFImage(APIView):
@@ -58,16 +57,16 @@ class VNFImage(APIView):
 		"""
 		Get the VNF template of a VNF
 		"""
-		raise Http501()
+		return HttpResponse(status=501)
 	
 	def put(self, request, vnf_id):
 		"""
 		Update or create a new VNF template
 		"""
-		raise Http501()
+		return HttpResponse(status=501)
 
 	def delete(self, request, vnf_id):
 		"""
 		Delete an existig VNF template
 		"""
-		raise Http501()
+		return HttpResponse(status=501)
