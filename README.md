@@ -1,10 +1,14 @@
-# VNF-repository
-Code to manage the repository of the VNF template and images
+# VNF images and templates repository
 
-Files taken from PSAR project of SECURED repository some files are not the final ones and need to be modified
-Dependecies missing
+This project defines some minimal code needed to start a server handling Virtual Network Functions templates and images:
+* VNF template: file that describes the characteristics of the VNF, such as the implemented function (e.g., firewall, NAT, etc), required resources (e.g.,  CPU, memory), required environment (e.g., KVM hypervisor, Docker, etc), and more (e.g., number and type of virtual interfaces, etc).
+* VNF image: raw image of the VNF (e.g, VM disk). In some case the VNF image is stored directly from this server; in other cases it is stored in a different backend (e.g., OpenStack Glance).
 
-To configure SQL:
+## How to configure the server
+
+This server requires a backend database to store the information.
+
+To create and initialize the SQL database:
 
 	mysql -u root -p
         mysql> CREATE DATABASE VNF_repository;
@@ -14,7 +18,9 @@ To configure SQL:
             IDENTIFIED BY 'vnfPass';
         mysql> exit
 
-To launch:
+## How to execute the server
+
+To start the server:
 
 	python manage.py makemigrations
 	python manage.py migrate
