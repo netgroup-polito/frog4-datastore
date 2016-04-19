@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -33,7 +32,7 @@ class VNFTemplate(APIView):
 		"""
 		template = API.getVNFTemplate(vnf_id)
 		if template is None:
-			raise Http404("VNF does not exist")
+			return HttpResponse(status=404)
 		return Response(data=template)
 	
 	def put(self, request, vnf_id):
@@ -46,7 +45,10 @@ class VNFTemplate(APIView):
 		"""
 		Delete an existig VNF template
 		"""
-		return HttpResponse(status=501)
+		API.deleteVNFTemplate(vnf_id)
+		return HttpResponse(status=200)
+		
+		
 
 
 class VNFImage(APIView):
