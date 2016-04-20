@@ -1,3 +1,6 @@
+import os
+from wsgiref.util import FileWrapper
+
 class LocalRepository(object):
 	
 	def __init__(self, imageDir):
@@ -11,6 +14,6 @@ class LocalRepository(object):
 	def getImage(self, vnf_id):
 		filename = self.imagesDir+str(vnf_id)
 
-                wrapper = FileWrapper(file(filename))
+		wrapper = FileWrapper(file(filename))
 		fileLen = os.path.getsize(filename)
 		return (wrapper, fileLen)
