@@ -17,12 +17,16 @@ from rest_framework.parsers import FileUploadParser, MultiPartParser
 from subprocess import call
 from xml.dom import minidom
 import json
-
+from imageRepository.LocalRepository import LocalRepository
 
 parser = SafeConfigParser()
 parser.read('vnfRepo.conf')
 logging.basicConfig(filename=parser.get('logging','filename'),format='%(asctime)s %(levelname)s:%(message)s', level=parser.get('logging','level'))
-
+repository = parser.get('repository', 'repository')
+if repository == "LOCAL_FILES":
+	imagesDir = parser.get('General', 'IMAGE_DIR')
+	imageRepo = LocalRepository(imageDir)
+	
 class VNFTemplate(APIView):
 	"""
 	"""
@@ -66,18 +70,28 @@ class VNFImage(APIView):
 	
 	def get(self, request, vnf_id):
 		"""
-		Get the VNF template of a VNF
+		Get the disk image of a VNF
 		"""
-		return HttpResponse(status=501)
+		try:
+			(wrapper, fileLen) = imageRepo.getImage(vnf_id)
+			response = HttpResponse(wrapper, content_type='text/plain', status=status.HTTP_200_OK)
+			response['Content-Length'] = fileLen
+			return response
+		except:
+			return Response(status=status.HTTP_404_NOT_FOUND)
 	
 	def put(self, request, vnf_id):
 		"""
-		Update or create a new VNF template
+		Insert/update a disk image for a VNF
 		"""
-		return HttpResponse(status=501)
+		try:
+			imageRepo.storeImage(vnf_id, request.data['file'])
+			return HttpResponse(status=200)
+		except:
+			return HttpResponse(status=400)
 
 	def delete(self, request, vnf_id):
 		"""
-		Delete an existig VNF template
+		Remove a disk image for a VNF
 		"""
 		return HttpResponse(status=501)
