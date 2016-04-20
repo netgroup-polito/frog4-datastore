@@ -16,6 +16,7 @@ from rest_framework.reverse import reverse
 from rest_framework.parsers import FileUploadParser, MultiPartParser
 from subprocess import call
 from xml.dom import minidom
+import json
 
 
 parser = SafeConfigParser()
@@ -39,14 +40,22 @@ class VNFTemplate(APIView):
 		"""
 		Update or create a new VNF template
 		"""
-		return HttpResponse(status=501)
+		if request.META['CONTENT_TYPE'] != 'application/json':
+			return HttpResponse(status=415)
+		try:
+			template = json.dumps(request.data)
+		except:
+			return HttpResponse(status=400)	
+		API.addVNFTemplate(vnf_id, template)
+		return HttpResponse(status=200)
 
 	def delete(self, request, vnf_id):
 		"""
 		Delete an existig VNF template
 		"""
-		API.deleteVNFTemplate(vnf_id)
-		return HttpResponse(status=200)
+		if API.deleteVNFTemplate(vnf_id):
+			return HttpResponse(status=200)
+		return HttpResponse(status=404)
 		
 		
 

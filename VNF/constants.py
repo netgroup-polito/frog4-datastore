@@ -16,5 +16,3 @@ SWIFT_KEY= os.getenv('SWIFT_KEY','testing')
 CONTAINER_NAME=os.getenv('CONTAINER_NAME','container2')
 SWIFT_AUTH_URL=os.getenv('SWIFT_AUTH_URL','http://127.0.0.1:8080/auth/v1.0')
 
-#Auth On/Off
-auth=os.getenv('PSAR_AUTH_ON',False)
