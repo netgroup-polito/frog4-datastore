@@ -17,15 +17,15 @@ from rest_framework.parsers import FileUploadParser, MultiPartParser
 from subprocess import call
 from xml.dom import minidom
 import json
-from imageRepository.LocalRepository import LocalRepository
+from VNF.imageRepository.LocalRepository import LocalRepository
 
 parser = SafeConfigParser()
-parser.read('vnfRepo.conf')
+parser.read(os.environ["VNF_REPO_CONF"])
 logging.basicConfig(filename=parser.get('logging','filename'),format='%(asctime)s %(levelname)s:%(message)s', level=parser.get('logging','level'))
 repository = parser.get('repository', 'repository')
 if repository == "LOCAL_FILES":
 	imagesDir = parser.get('General', 'IMAGE_DIR')
-	imageRepo = LocalRepository(imageDir)
+	imageRepo = LocalRepository(imagesDir)
 	
 class VNFTemplate(APIView):
 	"""
