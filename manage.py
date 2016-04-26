@@ -24,7 +24,7 @@ if __name__ == "__main__":
 	if confFile is not None:
 	        parser.read(confFile)
 	else:
-		confFile = "/root/config/default-config.ini"
+		confFile = "config/default-config.ini"
 		parser.read(confFile)
 	os.environ.setdefault("VNF_REPO_CONF", confFile)
 	logging.basicConfig(filename=parser.get('logging','filename'),format='%(asctime)s %(levelname)s:%(message)s', level=parser.get('logging','level'))
