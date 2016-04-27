@@ -1,4 +1,4 @@
-# VNF images and templates repository
+# Service repository for VNF images and templates
 
 This project defines some minimal code needed to start a server handling Virtual Network Functions templates and images:
 * VNF template: file that describes the characteristics of the VNF, such as the implemented function (e.g., firewall, NAT, etc), required resources (e.g.,  CPU, memory), required environment (e.g., KVM hypervisor, Docker, etc), and more (e.g., number and type of virtual interfaces, etc).
@@ -24,4 +24,4 @@ To start the server:
 
 	python manage.py makemigrations
 	python manage.py migrate
-	python manage.py runserver --d vnfRepo.conf
+	python manage.py runserver --d VNF_ServiceConfig.ini [uses config/default-config.ini if '--d' is missing]
