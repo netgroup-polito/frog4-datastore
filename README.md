@@ -6,6 +6,9 @@ This project defines some minimal code needed to start a server handling Virtual
 
 ## How to configure the server
 
+	sudo apt-get install mysql-server libmysqlclient-dev libffi-dev
+	pip install django djangorestframework MySQL-python django-rest-swagger wrapt bcrypt
+	
 This server requires a backend database to store the information.
 
 To create and initialize the SQL database:
