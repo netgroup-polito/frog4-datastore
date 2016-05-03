@@ -26,6 +26,21 @@ repository = parser.get('repository', 'repository')
 if repository == "LOCAL_FILES":
 	imagesDir = parser.get('General', 'IMAGE_DIR')
 	imageRepo = LocalRepository(imagesDir)
+
+
+class VNFTemplateAll(APIView):
+	"""
+	"""
+	
+	def get(self, request):
+		"""
+		Get the all VNF with the respectively template
+		"""
+		template = API.getVNFTemplate()
+		if template is None:
+			return HttpResponse(status=404)
+		return Response(data=template)
+
 	
 class VNFTemplate(APIView):
 	"""
