@@ -25,6 +25,7 @@ To create and initialize the SQL database:
 To start the server:
 
 	virtualenv .env
+	source .env/bin/activate
 	pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger wrapt bcrypt
 	python manage.py makemigrations
 	python manage.py migrate
