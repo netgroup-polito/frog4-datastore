@@ -39,5 +39,6 @@ if __name__ == "__main__":
 	execute_from_command_line(params)
 
     else:
+	os.environ.setdefault("VNF_REPO_CONF", "config/default-config.ini")
 	os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VNFRepository.settings")
 	execute_from_command_line(sys.argv)
