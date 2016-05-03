@@ -6,8 +6,7 @@ This project defines some minimal code needed to start a server handling Virtual
 
 ## How to configure the server
 
-	sudo apt-get install mysql-server libmysqlclient-dev libffi-dev
-	pip install django djangorestframework MySQL-python django-rest-swagger wrapt bcrypt
+	sudo apt-get install mysql-server libmysqlclient-dev libffi-dev python-virtualenv
 	
 This server requires a backend database to store the information.
 
@@ -25,6 +24,8 @@ To create and initialize the SQL database:
 
 To start the server:
 
+	virtualenv .env
+	pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger wrapt bcrypt
 	python manage.py makemigrations
 	python manage.py migrate
 	python manage.py runserver --d VNF_ServiceConfig.ini [uses config/default-config.ini if '--d' is missing]
