@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 	#url(r'^v1/status', include('v1status.urls')),
 	#url(r'^v1/status', v1Status.as_view(), name='status'),
 	
-	url(r'^v1/VNF', include('VNF.urls')),
+	url(r'^v1', include('VNF.urls')),
 	url(r'^docs/', include('rest_framework_swagger.urls')),
 )
 urlpatterns += staticfiles_urlpatterns()
