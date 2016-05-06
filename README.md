@@ -22,7 +22,7 @@ To create and initialize the SQL database:
 
 ## How to execute the server
 
-Creating a private environment in which we run Django 1.8; unfortunately API changed in 1.9, hence it is better to use this specific version only in our projec and start the server:
+Creating a private environment in which we run Django 1.8; unfortunately API changed in 1.9, hence it is better to use this specific version only in our project and start the server:
 
 	virtualenv .env
 	source .env/bin/activate
