@@ -1,4 +1,4 @@
-from models import VNF
+from models import VNF,NFFG
 import base64
 import json
 
@@ -32,3 +32,28 @@ def deleteVNFTemplate(vnf_id):
 def addVNFTemplate(vnf_id, template):
 	vnf = VNF(vnf_id = str(vnf_id), template = base64.b64encode(template))
 	vnf.save()
+
+
+
+
+
+def addNFFG(nffg_id, template):
+	nffg = NFFG(nffg_id = str(nffg_id), template = base64.b64encode(template))
+	nffg.save()
+
+
+
+
+def getNFFG(nffg_id=None):
+	if nffg_id is not None:
+		nffg_id = NFFG.objects.filter(nffg_id=str(nffg_id))
+	else:
+		nffg = NFFG.objects.all()
+		nffgList = []
+		for foundNFFG in nffg:
+			newNFFG = {}
+			newNFFG['id'] = foundNFFG.nffg_id
+			newNFFG['template'] = json.loads(base64.b64decode(foundNFFG.template))
+			nffgList.append(newNFFG)
+		return {'list':nffgList}
+	return None
