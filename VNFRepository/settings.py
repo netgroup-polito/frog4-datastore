@@ -10,6 +10,8 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import datetime
+from corsheaders.defaults import default_headers
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -37,10 +39,13 @@ INSTALLED_APPS = (
 	'rest_framework',
 	'VNF', 
 	'rest_framework_swagger',
+    'chunked_upload',
+    'corsheaders',
 )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -106,3 +111,12 @@ STATIC_ROOT = os.path.join(os.path.abspath('.'), 'static')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = default_headers + (
+    'content-range',
+    'content-disposition',
+)
+
+CHUNKED_UPLOAD_PATH = ('chunked_uploads')
+CHUNKED_UPLOAD_EXPIRATION_DELTA = datetime.timedelta(hours=1)
+CHUNKED_UPLOAD_ABSTRACT_MODEL = True
