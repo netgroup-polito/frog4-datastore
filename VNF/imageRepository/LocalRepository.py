@@ -7,6 +7,8 @@ class LocalRepository(object):
 		self.imageDir = imageDir
 
 	def storeImage(self, vnf_id, imageFile):
+		if not os.path.exists(self.imageDir):
+			os.makedirs(self.imageDir)
 		with open(self.imageDir + str(vnf_id), 'wb')as f:
                 	for chunk in imageFile.chunks():
                         	f.write(chunk)
