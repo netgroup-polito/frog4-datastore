@@ -18,6 +18,10 @@ from subprocess import call
 from xml.dom import minidom
 import json
 from VNF.imageRepository.LocalRepository import LocalRepository
+from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
+from .models import MyChunkedUpload
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 parser = SafeConfigParser()
 parser.read(os.environ["VNF_REPO_CONF"])
@@ -150,3 +154,40 @@ class VNFImage(APIView):
 		Remove a disk image for a VNF
 		"""
 		return HttpResponse(status=501)
+
+
+
+class MyChunkedUploadView(ChunkedUploadView):
+
+    field_name = 'the_file'
+    model = MyChunkedUpload
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(MyChunkedUploadView, self).dispatch(*args, **kwargs)
+
+    def check_permissions(self, request):
+        # Allow non authenticated users to make uploads
+        pass
+
+
+class MyChunkedUploadCompleteView(ChunkedUploadCompleteView):
+
+    model = MyChunkedUpload
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(MyChunkedUploadCompleteView, self).dispatch(*args, **kwargs)
+
+    def check_permissions(self, request):
+        # Allow non authenticated users to make uploads
+        pass
+
+    def on_completion(self, uploaded_file, request):
+        # Do something with the uploaded file
+        imageRepo.storeImage(request.POST['vnf_id'], uploaded_file)
+
+    def get_response_data(self, chunked_upload, request):
+        # Called after uploading each chunk
+        return {'message': ("You successfully uploaded '%s' (%s bytes)!" %
+                            (chunked_upload.filename, chunked_upload.offset))}
