@@ -141,7 +141,9 @@ class VNFImage(APIView):
 	
 	def put(self, request, vnf_id):
 		"""
-		Insert/update a disk image for a VNF
+		Insert/update a disk image for a VNF.
+		DO NOT use this! A new API that supports upload of large files in chunks was developed.
+		For further details see the example web client provided with this project.
 		"""
 		try:
 			imageRepo.storeImage(vnf_id, request.data['file'])
@@ -153,7 +155,11 @@ class VNFImage(APIView):
 		"""
 		Remove a disk image for a VNF
 		"""
-		return HttpResponse(status=501)
+		try:
+			os.remove(os.path.join(imagesDir, vnf_id))
+			return HttpResponse(status=200)
+		except:
+			return HttpResponse(status=400)
 
 
 
@@ -188,6 +194,8 @@ class MyChunkedUploadCompleteView(ChunkedUploadCompleteView):
         imageRepo.storeImage(request.POST['vnf_id'], uploaded_file)
 
     def get_response_data(self, chunked_upload, request):
-        # Called after uploading each chunk
+        filename = chunked_upload.filename
+        offset = chunked_upload.offset
+        chunked_upload.delete()
         return {'message': ("You successfully uploaded '%s' (%s bytes)!" %
-                            (chunked_upload.filename, chunked_upload.offset))}
+                            (filename, offset))}

@@ -13,10 +13,11 @@ urlpatterns = patterns('',
 	#url(r'^v1/status', include('v1status.urls')),
 	#url(r'^v1/status', v1Status.as_view(), name='status'),
 
+	url(r'^v1/VNF/chunked_upload/?$', MyChunkedUploadView.as_view(), name='api_chunked_upload'),
+    url(r'^v1/VNF/chunked_upload_complete/?$', MyChunkedUploadCompleteView.as_view(), name='api_chunked_upload_complete'),
+
 	url(r'^v1/VNF', include('VNF.urls')),
 	url(r'^docs/', include('rest_framework_swagger.urls')),
 
-	url(r'^api/chunked_upload/?$', MyChunkedUploadView.as_view(), name='api_chunked_upload'),
-    url(r'^api/chunked_upload_complete/?$', MyChunkedUploadCompleteView.as_view(), name='api_chunked_upload_complete'),
 )
 urlpatterns += staticfiles_urlpatterns()
