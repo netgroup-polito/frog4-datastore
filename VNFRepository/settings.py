@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 import datetime
 from corsheaders.defaults import default_headers
+from ConfigParser import SafeConfigParser
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -91,9 +92,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
-STATIC_URL = '/static/'
-
-
 """
 REST_FRAMEWORK = {
 	'DEFAULT_PARSER_CLASSES': (
@@ -104,12 +102,17 @@ REST_FRAMEWORK = {
 }
 """		
 
-
 STATIC_URL = '/static/'
-
 STATIC_ROOT = os.path.join(os.path.abspath('.'), 'static')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+
+parser = SafeConfigParser()
+parser.read(os.environ["VNF_REPO_CONF"])
+repository = parser.get('repository', 'repository')
+expiration = int(parser.get('repository', 'upload_expiration_hrs'))
+
+MEDIA_ROOT = parser.get('General', 'IMAGE_DIR') if repository == "LOCAL_FILES" else ''
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_HEADERS = default_headers + (
@@ -118,5 +121,5 @@ CORS_ALLOW_HEADERS = default_headers + (
 )
 
 CHUNKED_UPLOAD_PATH = ('chunked_uploads')
-CHUNKED_UPLOAD_EXPIRATION_DELTA = datetime.timedelta(hours=1)
+CHUNKED_UPLOAD_EXPIRATION_DELTA = datetime.timedelta(hours=expiration)
 CHUNKED_UPLOAD_ABSTRACT_MODEL = True
