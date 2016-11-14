@@ -18,7 +18,7 @@ def getVNFTemplate(vnf_id=None):
 		return {'list':vnfList}
 	
 	if len(vnf) != 0:
-		return base64.b64decode(vnf[0].template)
+		return json.loads(base64.b64decode(vnf[0].template))
 	return None
 
 
