@@ -2,7 +2,7 @@
 	"name": "cirros",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/48dafb6d-96ac-4130-bd25-3c4a9959e5b1",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 512,
 	"root-file-system-size": 1,
 	"ephemeral-file-system-size": 0,

@@ -2,7 +2,7 @@
 	"name": "firewall",
 	"expandable": "false",
 	"uri": "http://controller:9292/v2/images/6dc7b8af-3b92-4683-9400-ba40420c784b",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": "2048",
 	"root-file-system-size": "40",
 	"ephemeral-file-system-size": "0",

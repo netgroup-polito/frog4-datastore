@@ -2,7 +2,7 @@
 	"name": "nobody_switch_roma",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/5049bb5e-d2a8-4304-ac3d-8f5ea2650183",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 2048,
 	"root-file-system-size": 40,
 	"ephemeral-file-system-size": 0,

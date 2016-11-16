@@ -2,7 +2,7 @@
 	"name": "block-web-site.json",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/4f3a1c8d-d11f-43f1-b873-91254c4585ea",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 2048,
 	"root-file-system-size": 40,
 	"ephemeral-file-system-size": 0,

@@ -2,7 +2,7 @@
 	"name": "nat",
 	"expandable": "false",
 	"uri": "http://controller:9292/v2/images/483c833b-38ed-404d-b95d-a941d879b2e1",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": "2048",
 	"root-file-system-size": "40",
 	"ephemeral-file-system-size": "0",

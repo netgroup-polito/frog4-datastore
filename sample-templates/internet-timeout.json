@@ -2,7 +2,7 @@
 	"name": "internet-timeout.json",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/f19c38c1-5356-49e2-a037-3e4b56708d56",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 2048,
 	"root-file-system-size": 40,
 	"ephemeral-file-system-size": 0,

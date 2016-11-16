@@ -2,7 +2,7 @@
 	"name": "cirros_nodhcp",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/7b4434f8-207c-4f53-9427-4cd894559e8c",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 512,
 	"root-file-system-size": 1,
 	"ephemeral-file-system-size": 0,
