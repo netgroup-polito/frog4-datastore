@@ -3,8 +3,8 @@ from wsgiref.util import FileWrapper
 
 class LocalRepository(object):
 	
-	def __init__(self, imageDir):
-		self.imageDir = imageDir
+	def __init__(self, imagesDir):
+		self.imagesDir = imagesDir
 
 	def storeImage(self, vnf_id, imageFile):
 		with open(self.imagesDir+str(vnf_id),'wb')as f:
