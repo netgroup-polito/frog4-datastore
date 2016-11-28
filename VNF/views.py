@@ -209,19 +209,6 @@ class NF_FGraphsAll(APIView):
 			return HttpResponse(status=404)
 		return Response(data=template)
 
-
-class Capability(APIView):
-
-	def get(self, request, capability):
-		"""
-		Get the all VNF with the respectively capability
-		"""
-		template = API.getTemplatesFromCapability(capability)
-		if template is None:
-			return HttpResponse(status=404)
-		return Response(data=template)
-
-
 class NF_FGraphsAll_graphs_names(APIView):
 	"""
 	"""
@@ -234,6 +221,17 @@ class NF_FGraphsAll_graphs_names(APIView):
 			return HttpResponse(status=404)
 		return Response(data=template)
 
+
+class Capability(APIView):
+
+	def get(self, request, capability):
+		"""
+		Get the all VNF with the respectively capability
+		"""
+		template = API.getTemplatesFromCapability(capability)
+		if template is None:
+			return HttpResponse(status=404)
+		return Response(data=template)
 
 class MyChunkedUploadView(ChunkedUploadView):
 
