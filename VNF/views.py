@@ -37,16 +37,15 @@ if repository == "LOCAL_FILES":
 class NFFGAll(APIView):
 	"""
 	"""
+
 	def get(self, request):
-	"""
-	Get all the NFFG
-	"""
+		"""
+		Get all the NFFG
+		"""
 		template = API.getNFFG()
 		if template is None:
 			return HttpResponse(status=404)
 		return Response(data=template)
-
-
 
 
 class NFFGTemplate(APIView):
@@ -179,37 +178,36 @@ class Capability(APIView):
 
 class MyChunkedUploadView(ChunkedUploadView):
 
-    field_name = 'the_file'
-    model = MyChunkedUpload
+	field_name = 'the_file'
+	model = MyChunkedUpload
 
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super(MyChunkedUploadView, self).dispatch(*args, **kwargs)
+	@method_decorator(csrf_exempt)
+	def dispatch(self, *args, **kwargs):
+		return super(MyChunkedUploadView, self).dispatch(*args, **kwargs)
 
-    def check_permissions(self, request):
-        # Allow non authenticated users to make uploads
-        pass
+	def check_permissions(self, request):
+	# Allow non authenticated users to make uploads
+		pass
 
 
 class MyChunkedUploadCompleteView(ChunkedUploadCompleteView):
 
-    model = MyChunkedUpload
+	model = MyChunkedUpload
 
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super(MyChunkedUploadCompleteView, self).dispatch(*args, **kwargs)
+	@method_decorator(csrf_exempt)
+	def dispatch(self, *args, **kwargs):
+		return super(MyChunkedUploadCompleteView, self).dispatch(*args, **kwargs)
 
-    def check_permissions(self, request):
-        # Allow non authenticated users to make uploads
-        pass
+	def check_permissions(self, request):
+	# Allow non authenticated users to make uploads
+		pass
 
-    def on_completion(self, uploaded_file, request):
-        # Do something with the uploaded file
-        imageRepo.storeImage(request.POST['vnf_id'], uploaded_file)
+	def on_completion(self, uploaded_file, request):
+	# Do something with the uploaded file
+		imageRepo.storeImage(request.POST['vnf_id'], uploaded_file)
 
-    def get_response_data(self, chunked_upload, request):
-        filename = chunked_upload.filename
-        offset = chunked_upload.offset
-        chunked_upload.delete()
-        return {'message': ("You successfully uploaded '%s' (%s bytes)!" %
-                            (filename, offset))}
+	def get_response_data(self, chunked_upload, request):
+		filename = chunked_upload.filename
+		offset = chunked_upload.offset
+		chunked_upload.delete()
+		return {'message': ("You successfully uploaded '%s' (%s bytes)!" % (filename, offset))}
