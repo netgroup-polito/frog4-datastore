@@ -27,17 +27,13 @@ if repository == "LOCAL_FILES":
 	imagesDir = parser.get('General', 'IMAGE_DIR')
 	imageRepo = LocalRepository(imagesDir)
 
-
-
-
+'''
 class NFFGAll(APIView):
 	def get(self, request):
 		template = API.getNFFG()
 		if template is None:
 			return HttpResponse(status=404)
 		return Response(data=template)
-
-
 
 
 class NFFGTemplate(APIView):
@@ -52,11 +48,13 @@ class NFFGTemplate(APIView):
 		if template is None:
 			return HttpResponse(status=404)
 		return Response(data=template)
-
+	
 	def put(self, request, nffg_id):
 		"""
 		Update or create a NFFG
+
 		"""
+
 		if request.META['CONTENT_TYPE'] != 'application/json':
 			return HttpResponse(status=415)
 		try:
@@ -66,8 +64,7 @@ class NFFGTemplate(APIView):
 		API.addNFFG(nffg_id, template)
 		return HttpResponse(status=200)
 
-
-
+'''
 class VNFTemplateAll(APIView):
 	"""
 	"""
@@ -85,7 +82,6 @@ class VNFTemplateAll(APIView):
 class VNFTemplate(APIView):
 	"""
 	"""
-	
 	def get(self, request, vnf_id):
 		"""
 		Get the VNF template of a VNF
@@ -94,7 +90,7 @@ class VNFTemplate(APIView):
 		if template is None:
 			return HttpResponse(status=404)
 		return Response(data=template)
-	
+
 	def put(self, request, vnf_id):
 		"""
 		Update or create a new VNF template
@@ -115,8 +111,6 @@ class VNFTemplate(APIView):
 		if API.deleteVNFTemplate(vnf_id):
 			return HttpResponse(status=200)
 		return HttpResponse(status=404)
-		
-		
 
 
 class VNFImage(APIView):
@@ -150,3 +144,64 @@ class VNFImage(APIView):
 		Remove a disk image for a VNF
 		"""
 		return HttpResponse(status=501)
+
+
+class NFFGraphs(APIView):
+	"""
+	"""
+	def put(self, request, nf_fgraphs_id):
+		"""
+		Update or create a new Network Functions Forwarding Graph
+		"""
+		if request.META['CONTENT_TYPE'] != 'application/json':
+			return HttpResponse(status=415)
+		try:
+			template = json.dumps(request.data)
+		except:
+			return HttpResponse(status=400)
+		API.addNF_FGraphs(nf_fgraphs_id, template)
+		return Response(data=json.loads(template))
+
+	def delete(self, request, nf_fgraphs_id):
+		"""
+		Delete an existig Network Functions Forwarding Graph
+		"""
+		if API.deleteNF_FGraphs(nf_fgraphs_id):
+			return HttpResponse(status=200)
+		return HttpResponse(status=404)
+
+
+	def get(self, request, nf_fgraphs_id):
+		"""
+		Get the Network Functions Forwarding Graph
+		"""
+		template = API.getNF_FGraphs(nf_fgraphs_id)
+		#if template is None:
+			#return HttpResponse(status=404)
+		return Response(data=template)
+
+
+class NF_FGraphsAll(APIView):
+	"""
+	"""
+	def get(self, request):
+		"""
+		Get the all Network Functions Forwarding Graph
+		"""
+		template = API.getNF_FGraphs()
+		if template is None:
+			return HttpResponse(status=404)
+		return Response(data=template)
+
+class NF_FGraphsAll_graphs_names(APIView):
+	"""
+	"""
+	def get(self, request):
+		"""
+		Get the all NFFGs Names and ids
+		"""
+		template = API.getNF_FGraphsAll_graphs_names()
+		if template is None:
+			return HttpResponse(status=404)
+		return Response(data=template)
+
