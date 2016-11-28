@@ -35,7 +35,12 @@ if repository == "LOCAL_FILES":
 
 
 class NFFGAll(APIView):
+	"""
+	"""
 	def get(self, request):
+	"""
+	Get all the NFFG
+	"""
 		template = API.getNFFG()
 		if template is None:
 			return HttpResponse(status=404)
@@ -161,7 +166,16 @@ class VNFImage(APIView):
 		except:
 			return HttpResponse(status=400)
 
+class Capability(APIView):
 
+	def get(self, request, capability):
+		"""
+		Get the all VNF with the respectively capability
+		"""
+		template = API.getTemplatesFromCapability(capability)
+		if template is None:
+			return HttpResponse(status=404)
+		return Response(data=template)
 
 class MyChunkedUploadView(ChunkedUploadView):
 
