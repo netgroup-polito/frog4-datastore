@@ -1,10 +1,10 @@
 {
-	"name": "client_dhcp",
+	"name": "cirros_nodhcp",
 	"expandable": false,
-	"uri": "http://controller:9292/v2/images/a63c6d3b-ce1f-4875-9650-d87a144a363a",
+	"uri": "http://controller:9292/v2/images/7b4434f8-207c-4f53-9427-4cd894559e8c",
 	"vnf-type": "virtual-machine-kvm",
-	"memory-size": 2048,
-	"root-file-system-size": 40,
+	"memory-size": 512,
+	"root-file-system-size": 1,
 	"ephemeral-file-system-size": 0,
 	"swap-disk-size": 0,
 	"CPUrequirements": {
@@ -17,10 +17,10 @@
 	},
 	"ports": [
 		{
-			"position": "0-0",
+			"position": "0-N",
 			"label": "inout",
 			"min": "1",
-			"ipv4-config": "dhcp",
+			"ipv4-config": "none",
       		"ipv6-config": "none",
       		"name": "eth"
 		}

@@ -2,7 +2,7 @@
 	"name": "traffic_server_css.json",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/d09a539d-5745-42f7-9e09-fdbb003f8df0",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 2048,
 	"root-file-system-size": 40,
 	"ephemeral-file-system-size": 0,

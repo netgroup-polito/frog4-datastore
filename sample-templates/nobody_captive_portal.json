@@ -2,7 +2,7 @@
 	"name": "nobody_captive_portal",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/11434472-1d7a-440c-b3b0-b9afb586d475",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 2048,
 	"root-file-system-size": 40,
 	"ephemeral-file-system-size": 0,

@@ -2,7 +2,7 @@
 	"name": "cisco_nat_1",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/22a8b700-0427-4925-8338-9062b8d0ac9c",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 2048,
 	"root-file-system-size": 40,
 	"ephemeral-file-system-size": 0,

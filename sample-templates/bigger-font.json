@@ -2,7 +2,7 @@
 	"name": "bigger-font.json",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/9216fed5-ef40-4241-9572-2a3d46e50a3b",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 2048,
 	"root-file-system-size": 40,
 	"ephemeral-file-system-size": 0,

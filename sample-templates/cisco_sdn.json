@@ -2,7 +2,7 @@
 	"name": "cisco_sdn",
 	"expandable": false,
 	"uri": "http://controller:9292/v2/images/039e7b13-9cf4-4532-bbe2-02a98589eb27",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": 2048,
 	"root-file-system-size": 40,
 	"ephemeral-file-system-size": 0,

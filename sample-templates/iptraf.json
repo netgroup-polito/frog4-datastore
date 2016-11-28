@@ -2,7 +2,7 @@
 	"name": "client_iptraf",
 	"expandable": "false",
 	"uri": "http://controller:9292/v2/images/1e690297-9dd8-4cb7-9373-5c9ddcfadd85",
-	"vnf-type": "virtual-machine",
+	"vnf-type": "virtual-machine-kvm",
 	"memory-size": "2048",
 	"root-file-system-size": "40",
 	"ephemeral-file-system-size": "0",
