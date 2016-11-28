@@ -26,7 +26,28 @@ Creating a private environment in which we run Django 1.8; unfortunately API cha
 
 	virtualenv .env
 	source .env/bin/activate
-	pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 wrapt bcrypt
-	python manage.py makemigrations
+	pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt
+	python manage.py makemigrations VNF
 	python manage.py migrate
 	python manage.py runserver --d VNF_ServiceConfig.ini [uses config/default-config.ini if '--d' is missing]
+
+## How to clear expired uploads
+In the project is included also a management command in order to clear uncompleted expired uploads, both from the repository database and from disk. You can set how long (in hours) an upload is valid after its creation in the configuration file of the repository (i.e. ``deafault-config.ini``) by means of the variable ``upload_expiration_hrs``.
+ 
+You can launch the command manually from your virtual environment like this:
+
+    python manage.py delete_expired_uploads
+
+You can also set a cron-job:
+
+    crontab -e
+
+Add this line and save:
+
+    */60 * * * * cd FULL_PATH_TO_VNF_REPOSITORY && .env/bin/python manage.py delete_expired_uploads > /dev/null 2>&1
+
+Change ``FULL_PATH_TO_VNF_REPOSITORY`` with the full path where the VNF-repository is located (i.e. /home/user/VNF-repository).
+
+You can verify if your cron-job is installed with the command
+
+    crontab -l

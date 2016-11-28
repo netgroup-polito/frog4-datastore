@@ -41,3 +41,4 @@ class Client:
 	def put_manifest(self,image_id,manifestJSON):
 		url=self.base_URL+'vnf-template/'+image_id+'/'
 		return put(url,data=manifestJSON, headers=self.headers)
+
