@@ -18,6 +18,10 @@ from subprocess import call
 from xml.dom import minidom
 import json
 from VNF.imageRepository.LocalRepository import LocalRepository
+from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
+from .models import MyChunkedUpload
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 parser = SafeConfigParser()
 parser.read(os.environ["VNF_REPO_CONF"])
@@ -29,7 +33,13 @@ if repository == "LOCAL_FILES":
 
 '''
 class NFFGAll(APIView):
+	"""
+	"""
+
 	def get(self, request):
+		"""
+		Get all the NFFG
+		"""
 		template = API.getNFFG()
 		if template is None:
 			return HttpResponse(status=404)
@@ -131,7 +141,9 @@ class VNFImage(APIView):
 	
 	def put(self, request, vnf_id):
 		"""
-		Insert/update a disk image for a VNF
+		Insert/update a disk image for a VNF.
+		DO NOT use this! A new API that supports upload of large files in chunks was developed.
+		For further details see the example web client provided with this project.
 		"""
 		try:
 			imageRepo.storeImage(vnf_id, request.data['file'])
@@ -143,7 +155,11 @@ class VNFImage(APIView):
 		"""
 		Remove a disk image for a VNF
 		"""
-		return HttpResponse(status=501)
+		try:
+			os.remove(os.path.join(imagesDir, vnf_id))
+			return HttpResponse(status=200)
+		except:
+			return HttpResponse(status=400)
 
 
 class NFFGraphs(APIView):
@@ -193,6 +209,19 @@ class NF_FGraphsAll(APIView):
 			return HttpResponse(status=404)
 		return Response(data=template)
 
+
+class Capability(APIView):
+
+	def get(self, request, capability):
+		"""
+		Get the all VNF with the respectively capability
+		"""
+		template = API.getTemplatesFromCapability(capability)
+		if template is None:
+			return HttpResponse(status=404)
+		return Response(data=template)
+
+
 class NF_FGraphsAll_graphs_names(APIView):
 	"""
 	"""
@@ -205,3 +234,39 @@ class NF_FGraphsAll_graphs_names(APIView):
 			return HttpResponse(status=404)
 		return Response(data=template)
 
+
+class MyChunkedUploadView(ChunkedUploadView):
+
+	field_name = 'the_file'
+	model = MyChunkedUpload
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, *args, **kwargs):
+		return super(MyChunkedUploadView, self).dispatch(*args, **kwargs)
+
+	def check_permissions(self, request):
+	# Allow non authenticated users to make uploads
+		pass
+
+
+class MyChunkedUploadCompleteView(ChunkedUploadCompleteView):
+
+	model = MyChunkedUpload
+
+	@method_decorator(csrf_exempt)
+	def dispatch(self, *args, **kwargs):
+		return super(MyChunkedUploadCompleteView, self).dispatch(*args, **kwargs)
+
+	def check_permissions(self, request):
+	# Allow non authenticated users to make uploads
+		pass
+
+	def on_completion(self, uploaded_file, request):
+	# Do something with the uploaded file
+		imageRepo.storeImage(request.POST['vnf_id'], uploaded_file)
+
+	def get_response_data(self, chunked_upload, request):
+		filename = chunked_upload.filename
+		offset = chunked_upload.offset
+		chunked_upload.delete()
+		return {'message': ("You successfully uploaded '%s' (%s bytes)!" % (filename, offset))}

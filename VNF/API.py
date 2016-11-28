@@ -19,6 +19,15 @@ def getVNFTemplate(vnf_id=None):
 		return json.loads(base64.b64decode(vnf[0].template))
 	return None
 
+def getTemplatesFromCapability(vnfCapability):
+	vnf = VNF.objects.filter(capability=str(vnfCapability))
+	vnfList = []
+	for foundVNF in vnf:
+		newVNF = {}
+		newVNF['id'] = foundVNF.vnf_if
+		newVNF['template'] = json.loads(base64.b64decode(foundVNF.template))
+		vnfList.append(newVNF)
+	return {'list': vnfList}
 
 def deleteVNFTemplate(vnf_id):
 	vnf = VNF.objects.filter(vnf_id=str(vnf_id))
