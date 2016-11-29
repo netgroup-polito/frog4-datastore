@@ -31,50 +31,6 @@ if repository == "LOCAL_FILES":
 	imagesDir = parser.get('General', 'IMAGE_DIR')
 	imageRepo = LocalRepository(imagesDir)
 
-'''
-class NFFGAll(APIView):
-	"""
-	"""
-
-	def get(self, request):
-		"""
-		Get all the NFFG
-		"""
-		template = API.getNFFG()
-		if template is None:
-			return HttpResponse(status=404)
-		return Response(data=template)
-
-
-class NFFGTemplate(APIView):
-	"""
-	"""
-
-	def get(self, request, nffg_id):
-		"""
-		Get a NFFG
-		"""
-		template = API.getNFFG(nffg_id)
-		if template is None:
-			return HttpResponse(status=404)
-		return Response(data=template)
-	
-	def put(self, request, nffg_id):
-		"""
-		Update or create a NFFG
-
-		"""
-
-		if request.META['CONTENT_TYPE'] != 'application/json':
-			return HttpResponse(status=415)
-		try:
-			template = json.dumps(request.data)
-		except:
-			return HttpResponse(status=400)
-		API.addNFFG(nffg_id, template)
-		return HttpResponse(status=200)
-
-'''
 class VNFTemplateAll(APIView):
 	"""
 	"""
@@ -175,7 +131,8 @@ class NFFGraphs(APIView):
 			template = json.dumps(request.data)
 		except:
 			return HttpResponse(status=400)
-		API.addNF_FGraphs(nf_fgraphs_id, template)
+		if API.addNF_FGraphs(nf_fgraphs_id, template) == False:
+			return HttpResponse(status=400)
 		return Response(data=json.loads(template))
 
 	def delete(self, request, nf_fgraphs_id):
