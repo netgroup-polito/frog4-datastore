@@ -64,10 +64,13 @@ class VNFTemplate(APIView):
 		if request.META['CONTENT_TYPE'] != 'application/json':
 			return HttpResponse(status=415)
 		try:
+			if 'functional-capability' not in request.data.keys():
+				return HttpResponse(status=400)
+			capability = request.data['functional-capability']
 			template = json.dumps(request.data)
 		except:
 			return HttpResponse(status=400)	
-		API.addVNFTemplate(vnf_id, template)
+		API.addVNFTemplate(vnf_id, template, capability)
 		return HttpResponse(status=200)
 
 	def delete(self, request, vnf_id):

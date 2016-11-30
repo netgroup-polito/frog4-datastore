@@ -24,7 +24,7 @@ def getTemplatesFromCapability(vnfCapability):
 	vnfList = []
 	for foundVNF in vnf:
 		newVNF = {}
-		newVNF['id'] = foundVNF.vnf_if
+		newVNF['id'] = foundVNF.vnf_id
 		newVNF['template'] = json.loads(base64.b64decode(foundVNF.template))
 		vnfList.append(newVNF)
 	return {'list': vnfList}
@@ -36,8 +36,8 @@ def deleteVNFTemplate(vnf_id):
 		return True
 	return False
 
-def addVNFTemplate(vnf_id, template):
-	vnf = VNF(vnf_id = str(vnf_id), template = base64.b64encode(template))
+def addVNFTemplate(vnf_id, template, capability):
+	vnf = VNF(vnf_id = str(vnf_id), template = base64.b64encode(template), capability=capability)
 	vnf.save()
 
 def addNF_FGraphs(nf_fgraphs_id, nf_fgraphs_template):
