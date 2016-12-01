@@ -65,7 +65,7 @@ class VNFTemplate(APIView):
 			return HttpResponse(status=415)
 		try:
 			if 'functional-capability' not in request.data.keys():
-				return HttpResponse(status=400)
+				return HttpResponse("Missing functional-capability field", status=400)
 			capability = request.data['functional-capability']
 			template = json.dumps(request.data)
 		except:
@@ -135,7 +135,7 @@ class NFFGraphs(APIView):
 		except:
 			return HttpResponse(status=400)
 		if API.addNF_FGraphs(nf_fgraphs_id, template) == False:
-			return HttpResponse(status=400)
+			return HttpResponse("The given ID is different from the template", status=400)
 		return Response(data=json.loads(template))
 
 	def delete(self, request, nf_fgraphs_id):
@@ -152,8 +152,8 @@ class NFFGraphs(APIView):
 		Get the Network Functions Forwarding Graph
 		"""
 		template = API.getNF_FGraphs(nf_fgraphs_id)
-		#if template is None:
-			#return HttpResponse(status=404)
+		if template is None:
+			return HttpResponse(status=404)
 		return Response(data=template)
 
 
