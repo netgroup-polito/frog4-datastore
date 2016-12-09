@@ -1,10 +1,10 @@
-# Service repository for VNF images and templates
+# Datastore service for NF images and templates, NF-FG, and more
 
 This project defines some minimal code needed to start a server handling Virtual Network Functions templates and images:
 * VNF template: file that describes the characteristics of the VNF, such as the implemented function (e.g., firewall, NAT, etc), required resources (e.g.,  CPU, memory), required environment (e.g., KVM hypervisor, Docker, etc), and more (e.g., number and type of virtual interfaces, etc).
 * VNF image: raw image of the VNF (e.g, VM disk). In some case the VNF image is stored directly from this server; in other cases it is stored in a different backend (e.g., OpenStack Glance).
 
-## How to configure the server
+## How to configure the datastore
 
 	sudo apt-get install mysql-server libmysqlclient-dev libffi-dev python-virtualenv
 	
@@ -20,16 +20,21 @@ To create and initialize the SQL database:
             IDENTIFIED BY 'vnfPass';
         mysql> exit
 
-## How to execute the server
+## How to execute the datastore
 
 Creating a private environment in which we run Django 1.8; unfortunately API changed in 1.9, hence it is better to use this specific version only in our project and start the server:
 
-	virtualenv .env
-	source .env/bin/activate
-	pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt
-	python manage.py makemigrations VNF
-	python manage.py migrate
-	python manage.py runserver --d VNF_ServiceConfig.ini [uses config/default-config.ini if '--d' is missing]
+	$ cd [frog4-datastore]
+	$ virtualenv .env
+	$ source .env/bin/activate
+	$ pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt
+	$ python manage.py makemigrations VNF
+	$ python manage.py migrate
+	$ python manage.py runserver --d VNF_ServiceConfig.ini [uses config/default-config.ini if '--d' is missing]
+
+## How to interact with the datastore
+
+A description of the API exposed by the datastore is available at the URL: *ip_address:port/docs*
 
 ## How to clear expired uploads
 In the project is included also a management command in order to clear uncompleted expired uploads, both from the repository database and from disk. You can set how long (in hours) an upload is valid after its creation in the configuration file of the repository (i.e. ``deafault-config.ini``) by means of the variable ``upload_expiration_hrs``.
