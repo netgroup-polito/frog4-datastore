@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,14 +16,14 @@ from rest_framework.parsers import FileUploadParser, MultiPartParser
 from subprocess import call
 from xml.dom import minidom
 import json
-from VNF.imageRepository.LocalRepository import LocalRepository
+from datastore.imageRepository.LocalRepository import LocalRepository
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
 from .models import MyChunkedUpload
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
 parser = SafeConfigParser()
-parser.read(os.environ["VNF_REPO_CONF"])
+parser.read(os.environ["DATASTORE_CONFIG_FILE"])
 logging.basicConfig(filename=parser.get('logging','filename'),format='%(asctime)s %(levelname)s:%(message)s', level=parser.get('logging','level'))
 repository = parser.get('repository', 'repository')
 if repository == "LOCAL_FILES":

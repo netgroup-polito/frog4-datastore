@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from VNF import views
+from datastore import views
 
 urlpatterns = [
         url(r'^/nf_template/$', views.VNFTemplateAll.as_view(), name='VNF Template'),

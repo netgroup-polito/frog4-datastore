@@ -38,7 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'rest_framework',
-	'VNF', 
+	'datastore', 
 	'rest_framework_swagger',
     'chunked_upload',
     'corsheaders',
@@ -55,9 +55,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'VNFRepository.urls'
+ROOT_URLCONF = 'datastore_main.urls'
 
-WSGI_APPLICATION = 'VNFRepository.wsgi.application'
+WSGI_APPLICATION = 'datastore_main.wsgi.application'
 
 
 # Database
@@ -108,7 +108,7 @@ STATIC_ROOT = os.path.join(os.path.abspath('.'), 'static')
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 parser = SafeConfigParser()
-parser.read(os.environ["VNF_REPO_CONF"])
+parser.read(os.environ["DATASTORE_CONFIG_FILE"])
 repository = parser.get('repository', 'repository')
 expiration = int(parser.get('repository', 'upload_expiration_hrs'))
 

@@ -25,13 +25,21 @@ To create and initialize the SQL database:
 
 Creating a private environment in which we run Django 1.8; unfortunately API changed in 1.9, hence it is better to use this specific version only in our project and start the server:
 
+### First time
+
 	$ cd [frog4-datastore]
 	$ virtualenv .env
 	$ source .env/bin/activate
 	$ pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt
-	$ python manage.py makemigrations VNF
+	$ python manage.py makemigrations datastore
 	$ python manage.py migrate
-	$ python manage.py runserver --d VNF_ServiceConfig.ini [uses config/default-config.ini if '--d' is missing]
+	$ python manage.py runserver --d datastore_config.ini [uses config/default-config.ini if '--d' is missing]
+
+### Next times 
+
+	$ cd [frog4-datastore]
+	$ source .env/bin/activate
+	$ python manage.py runserver --d datastore_config.ini [uses config/default-config.ini if '--d' is missing]
 
 ## How to interact with the datastore
 
@@ -50,9 +58,9 @@ You can also set a cron-job:
 
 Add this line and save:
 
-    */60 * * * * cd FULL_PATH_TO_VNF_REPOSITORY && .env/bin/python manage.py delete_expired_uploads > /dev/null 2>&1
+    */60 * * * * cd `[frog4-datastore]` && .env/bin/python manage.py delete_expired_uploads > /dev/null 2>&1
 
-Change ``FULL_PATH_TO_VNF_REPOSITORY`` with the full path where the VNF-repository is located (i.e. /home/user/VNF-repository).
+Change ``[frog4-datastore]`` with the full path where the datastore is located (i.e. /home/user/frog4-datastore).
 
 You can verify if your cron-job is installed with the command
 

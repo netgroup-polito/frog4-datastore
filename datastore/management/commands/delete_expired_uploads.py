@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 
 from chunked_upload.settings import EXPIRATION_DELTA
 from chunked_upload.constants import UPLOADING, COMPLETE
-from VNF.models import MyChunkedUpload
+from datastore.models import MyChunkedUpload
 
 prompt_msg = _(u'Do you want to delete {obj}?')
 
