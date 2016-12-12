@@ -3,9 +3,10 @@ interact with the datastore to:
 * upload/get/delete network functions templates
 * delete network functions images
 
-The file `example.py` is instead a minimal client that can be used to test the 
-datastore functionalities. Particularly, it uploads the template provided through
-command line.
+The file `example.py` is instead a minimal client that simply uploads the template 
+provided through command line.
+
+Usage example:
 
 `python client.py switch.json`
 
