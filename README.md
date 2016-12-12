@@ -1,9 +1,9 @@
 # Datastore service for NF images and templates, NF-FG, and more
 
 This project defines some minimal code needed to start a server storing information exploited by the FROG v.4:
-* NF template: file that describes the characteristics of the network function, such as the its capapbility (e.g., firewall, NAT), required resources (e.g., amount of CPU, amount of memory), required execution environment (e.g., KVM hypervisor, Docker, etc), number and type of virtual interfaces, and more. Examples of templates, which have to follow a proper [schema](https://github.com/netgroup-polito/vnf-template-library/schema.json), are available in [sample-templates](./sample-templates);
+* NF template: file that describes the characteristics of the network function, such as the its capapbility (e.g., firewall, NAT), required resources (e.g., amount of CPU, amount of memory), required execution environment (e.g., KVM hypervisor, Docker, etc), number and type of virtual interfaces, and more. Examples of templates, which have to follow a proper [schema](https://github.com/netgroup-polito/vnf-template-library/blob/master/schema.json), are available in [sample-templates](./sample-templates);
 * NF image: raw image of the NF (e.g, VM disk, archive file). In some cases the NF image is stored directly in this server; in other cases it is stored in a different backend (e.g., OpenStack Glance);
-* NF-FG: file that describes a network functions forwaring graph, written according to a proper [schema](https://github.com/netgroup-polito/nffg-library/schema.json).
+* NF-FG: file that describes a network functions forwaring graph, written according to a proper [schema](https://github.com/netgroup-polito/nffg-library/blob/master/schema.json).
 
 ## How to configure the datastore
 
