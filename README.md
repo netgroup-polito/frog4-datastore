@@ -14,11 +14,11 @@ This server requires a backend database to store the information.
 To create and initialize the SQL database:
 
 	mysql -u root -p
-        mysql> CREATE DATABASE VNF_repository;
-        mysql> GRANT ALL PRIVILEGES ON VNF_repository.* TO 'vnfRepo'@'localhost' \
-            IDENTIFIED BY 'vnfPass';
-        mysql> GRANT ALL PRIVILEGES ON VNF_repository.* TO 'vnfRepo'@'%' \
-            IDENTIFIED BY 'vnfPass';
+        mysql> CREATE DATABASE frog4_datastore;
+        mysql> GRANT ALL PRIVILEGES ON frog4_datastore.* TO 'datastore'@'localhost' \
+            IDENTIFIED BY 'datastorePWD';
+        mysql> GRANT ALL PRIVILEGES ON frog4_datastore.* TO 'datastore'@'%' \
+            IDENTIFIED BY 'datastorePWD';
         mysql> exit
 
 ## How to execute the datastore

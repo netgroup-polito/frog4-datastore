@@ -67,9 +67,9 @@ DATABASES = {
     'default': {
  
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME':'VNF_repository',
-        'USER': 'vnfRepo',
-        'PASSWORD': 'vnfPass',
+        'NAME':'frog4_datastore',
+        'USER': 'datastore',
+        'PASSWORD': 'datastorePWD',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
