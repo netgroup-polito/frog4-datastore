@@ -1,28 +1,30 @@
 {
-	"name": "dhcp",
-	"expandable": false,
-	"uri": "http://controller:9292/v2/images/cc3fb561-a255-4bd6-bb2a-8f58b7a58008",
-	"vnf-type": "virtual-machine-kvm",
-	"memory-size": 512,
-	"root-file-system-size": 5,
-	"ephemeral-file-system-size": 0,
-	"swap-disk-size": 0,
-	"CPUrequirements": {
-		"platformType": "x86",
-		"socket": [
-			{
-				"coreNumbers": 1
-			}
-		]
-	},
-	"ports": [
-		{
+    "name": "dhcp",
+    "expandable": false,
+    "uri": "http://controller:9292/v2/images/cc3fb561-a255-4bd6-bb2a-8f58b7a58008",
+    "uri-type": "remote-file",
+    "functional-capability": "dhcp",
+    "vnf-type": "virtual-machine-kvm",
+    "memory-size": 512,
+    "root-file-system-size": 5,
+    "ephemeral-file-system-size": 0,
+    "swap-disk-size": 0,
+    "CPUrequirements": {
+        "platformType": "x86",
+        "socket": [
+            {
+                "coreNumbers": 1
+            }
+        ]
+    },
+    "ports": [
+        {
             "position": "0-0",
-			"label": "inout",
-			"min": "1",
-			"ipv4-config": "none",
-      		"ipv6-config": "none",
-      		"name": "eth"
-		}
-	]
+            "label": "inout",
+            "min": "1",
+            "ipv4-config": "none",
+            "ipv6-config": "none",
+            "name": "eth"
+        }
+    ]
 }
