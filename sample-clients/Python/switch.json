@@ -23,7 +23,8 @@
 			"min": "1",
 			"ipv4-config": "none",
 			"ipv6-config": "none",
-			"name": "eth"
+			"name": "eth",
+			"thecnology":"vhost"
 		}
 	]
 }
