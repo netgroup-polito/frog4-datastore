@@ -12,7 +12,7 @@
 		"platformType": "x86",
 		"socket": [
 			{
-				"coreNumbers": "1"
+				"coreNumbers": 1
 			}
 		]
 	},
