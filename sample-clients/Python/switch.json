@@ -1,7 +1,7 @@
 {
 	"name": "switch",
 	"functional-capability" : "l2-switch",
-	"expandable": "false",
+	"expandable": false,
 	"uri": "http://controller:9292/v2/images/89a6a8c5-433a-4724-b7c5-bbeda8dc39e1",
 	"vnf-type": "virtual-machine-kvm",
 	"memory-size": "2048",
