@@ -12,7 +12,7 @@
 			"ipv4-config": "none",
 			"ipv6-config": "none",
 			"name": "eth",
-			"thecnology":"vhost"
+			"technology":"vhost"
 		}
 	],
 	"expandable": false,
