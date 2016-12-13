@@ -16,10 +16,10 @@
 		}
 	],
 	"expandable": false,
-	"memory-size": "2048",
-	"root-file-system-size": "40",
-	"ephemeral-file-system-size": "0",
-	"swap-disk-size": "0",
+	"memory-size": 2048,
+	"root-file-system-size": 40,
+	"ephemeral-file-system-size": 0,
+	"swap-disk-size": 0,
 	"CPUrequirements": {
 		"platformType": "x86",
 		"socket": [
