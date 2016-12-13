@@ -26,7 +26,7 @@ if __name__ == "__main__":
 	else:
 		confFile = "config/default-config.ini"
 		parser.read(confFile)
-	os.environ.setdefault("VNF_REPO_CONF", confFile)
+	os.environ.setdefault("DATASTORE_CONFIG_FILE", confFile)
 	logging.basicConfig(filename=parser.get('logging','filename'),format='%(asctime)s %(levelname)s:%(message)s', level=parser.get('logging','level'))
 	addr = parser.get('rest_server', 'address')
 	port = parser.get('rest_server', 'port')
@@ -34,11 +34,11 @@ if __name__ == "__main__":
 	params.append(sys.argv[0])
 	params.append(sys.argv[1])
 	params.append(addr+":"+str(port))
-        logging.info('Running VNF repository with version %s',version)
-	os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VNFRepository.settings")
+        logging.info('Running \'FROG v.4 datastpore\' with version %s',version)
+	os.environ.setdefault("DJANGO_SETTINGS_MODULE", "datastore_main.settings")
 	execute_from_command_line(params)
 
     else:
-	os.environ.setdefault("VNF_REPO_CONF", "config/default-config.ini")
-	os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VNFRepository.settings")
+	os.environ.setdefault("DATASTORE_CONFIG_FILE", "config/default-config.ini")
+	os.environ.setdefault("DJANGO_SETTINGS_MODULE", "datastore_main.settings")
 	execute_from_command_line(sys.argv)

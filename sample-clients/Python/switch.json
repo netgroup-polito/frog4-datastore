@@ -1,0 +1,32 @@
+{
+	"name": "switch",
+	"functional-capability" : "l2-switch",
+	"uri": "http://localhost:8081/v2/nf_image/1",
+	"vnf-type": "virtual-machine-kvm",
+	"uri-type": "remote-file",
+	"ports": [
+		{
+			"position": "0-N",
+			"label": "L2Port",
+			"min": "1",
+			"ipv4-config": "none",
+			"ipv6-config": "none",
+			"name": "eth",
+			"technology":"vhost"
+		}
+	],
+	"expandable": false,
+	"memory-size": "2048",
+	"root-file-system-size": "40",
+	"ephemeral-file-system-size": "0",
+	"swap-disk-size": "0",
+	"CPUrequirements": {
+		"platformType": "x86",
+		"socket": [
+			{
+				"coreNumbers": 1
+			}
+		]
+	}
+}
+

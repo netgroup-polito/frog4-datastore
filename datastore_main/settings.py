@@ -10,6 +10,9 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import datetime
+from corsheaders.defaults import default_headers
+from ConfigParser import SafeConfigParser
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -35,12 +38,15 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'rest_framework',
-	'VNF', 
+	'datastore', 
 	'rest_framework_swagger',
+    'chunked_upload',
+    'corsheaders',
 )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -49,9 +55,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'VNFRepository.urls'
+ROOT_URLCONF = 'datastore_main.urls'
 
-WSGI_APPLICATION = 'VNFRepository.wsgi.application'
+WSGI_APPLICATION = 'datastore_main.wsgi.application'
 
 
 # Database
@@ -61,9 +67,9 @@ DATABASES = {
     'default': {
  
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME':'VNF_repository',
-        'USER': 'vnfRepo',
-        'PASSWORD': 'vnfPass',
+        'NAME':'frog4_datastore',
+        'USER': 'datastore',
+        'PASSWORD': 'datastorePWD',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
@@ -86,9 +92,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
-STATIC_URL = '/static/'
-
-
 """
 REST_FRAMEWORK = {
 	'DEFAULT_PARSER_CLASSES': (
@@ -99,10 +102,24 @@ REST_FRAMEWORK = {
 }
 """		
 
-
 STATIC_URL = '/static/'
-
 STATIC_ROOT = os.path.join(os.path.abspath('.'), 'static')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
+parser = SafeConfigParser()
+parser.read(os.environ["DATASTORE_CONFIG_FILE"])
+repository = parser.get('repository', 'repository')
+expiration = int(parser.get('repository', 'upload_expiration_hrs'))
+
+MEDIA_ROOT = parser.get('General', 'IMAGE_DIR') if repository == "LOCAL_FILES" else ''
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = default_headers + (
+    'content-range',
+    'content-disposition',
+)
+
+CHUNKED_UPLOAD_PATH = ('chunked_uploads')
+CHUNKED_UPLOAD_EXPIRATION_DELTA = datetime.timedelta(hours=expiration)
+CHUNKED_UPLOAD_ABSTRACT_MODEL = True
