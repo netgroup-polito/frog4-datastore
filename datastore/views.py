@@ -97,17 +97,19 @@ class VNFImage(APIView):
 		except:
 			return Response(status=status.HTTP_404_NOT_FOUND)
 	
-	def put(self, request, vnf_id):
-		"""
-		Insert/update a disk image for a VNF.
-		DO NOT use this! A new API that supports upload of large files in chunks was developed.
-		For further details see the example web client provided with this project.
-		"""
-		try:
-			imageRepo.storeImage(vnf_id, request.data['file'])
-			return HttpResponse(status=200)
-		except:
-			return HttpResponse(status=400)
+	# def put(self, request, vnf_id):
+	# 	"""
+	# 	Insert/update a disk image for a VNF.
+    #
+	# 	DO NOT use this! A new API that supports upload of large files in chunks was developed.
+    #
+	# 	For further details see the example web client provided within this project.
+	# 	"""
+	# 	try:
+	# 		imageRepo.storeImage(vnf_id, request.data['file'])
+	# 		return HttpResponse(status=200)
+	# 	except:
+	# 		return HttpResponse(status=400)
 
 	def delete(self, request, vnf_id):
 		"""
@@ -192,10 +194,21 @@ class Capability(APIView):
 			return HttpResponse(status=404)
 		return Response(data=template)
 
-class MyChunkedUploadView(ChunkedUploadView):
-
+class MyChunkedUploadView(ChunkedUploadView, APIView):
+	"""
+	"""
 	field_name = 'the_file'
 	model = MyChunkedUpload
+
+	def post(self, request, *args, **kwargs):
+		"""
+		Insert/update a disk image for a VNF.
+
+		Subsequent POST requests with chunks of the image file have to be sent.
+
+		For further details see the note about NF Image upload API in the README_developer.
+		"""
+		return ChunkedUploadView.post(self, request, *args, **kwargs)
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, *args, **kwargs):
@@ -206,9 +219,20 @@ class MyChunkedUploadView(ChunkedUploadView):
 		pass
 
 
-class MyChunkedUploadCompleteView(ChunkedUploadCompleteView):
-
+class MyChunkedUploadCompleteView(ChunkedUploadCompleteView, APIView):
+	"""
+	"""
 	model = MyChunkedUpload
+
+	def post(self, request, *args, **kwargs):
+		"""
+		Insert/update a disk image for a VNF.
+
+		Final POST request has to be sent when an image upload is completed.
+
+		For further details see the note about NF Image upload API in the README_developer.
+		"""
+		return ChunkedUploadCompleteView.post(self, request, *args, **kwargs)
 
 	@method_decorator(csrf_exempt)
 	def dispatch(self, *args, **kwargs):

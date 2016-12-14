@@ -45,8 +45,9 @@ Creating a private environment in which we run Django 1.8; unfortunately API cha
 
 A description of the API exposed by the datastore is available at the URL: *ip_address:port/docs*
 
-## How to clear expired uploads
-In the project is included also a management command in order to clear uncompleted expired uploads, both from the repository database and from disk. You can set how long (in hours) an upload is valid after its creation in the configuration file of the repository (i.e. ``deafault-config.ini``) by means of the variable ``upload_expiration_hrs``.
+## How to clear uncompleted uploads
+
+It is also included a management command in order to clear uncompleted NF image uploads which has expired, both from the datastore's DB and from disk. You can set how long (in hours) an upload is valid after its creation in the configuration file of the datastore (i.e. ``deafault-config.ini``) by means of the variable ``upload_expiration_hrs``.
  
 You can launch the command manually from your virtual environment like this:
 
@@ -58,7 +59,7 @@ You can also set a cron-job:
 
 Add this line and save:
 
-    */60 * * * * cd `[frog4-datastore]` && .env/bin/python manage.py delete_expired_uploads > /dev/null 2>&1
+    */60 * * * * cd [frog4-datastore] && .env/bin/python manage.py delete_expired_uploads > /dev/null 2>&1
 
 Change ``[frog4-datastore]`` with the full path where the datastore is located (i.e. /home/user/frog4-datastore).
 
