@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sample Web Client for chunked uploads</title>
+    <title>Sample Web Client (JQuery)</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -16,27 +16,30 @@
 </head>
 <body>
 
-    <h1>
-        Test client for Django chunked uploads
-    </h1>
-    <label for="vnf_id">VNF ID: </label>
-    <input id="vnf_id" name="vnf_id" type="text"><br><br>
-    <input id="chunked_upload" type="file" name="the_file"/><br><br>
-    <input id="uploadbtn" type="button" value="Upload" disabled>
-    <p id="progress"></p>
-    <div id="messages"></div>
+<h1>
+    Test client for VNF's image upload to FROGv.4-datastore
+</h1>
+<label for="vnf_id">VNF ID: </label>
+<input id="vnf_id" name="vnf_id" type="text"><br><br>
+<input id="chunked_upload" type="file" name="the_file"/><br><br>
+<input id="uploadbtn" type="button" value="Upload" disabled>
+<p id="progress"></p>
+<div id="messages"></div>
 
-    <script type="text/javascript">
+<script type="text/javascript">
     var md5 = "",
-    vnf_id = "",
-    form_data = [];
+            vnf_id = "",
+            form_data = [],
+            current_offset = 0,
+            retries = 0;
     function calculate_md5(file, chunk_size) {
         var slice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
-        chunks = chunks = Math.ceil(file.size / chunk_size),
-        current_chunk = 0,
-        spark = new SparkMD5.ArrayBuffer();
+                chunks = Math.ceil(file.size / chunk_size),
+                current_chunk = 0,
+                spark = new SparkMD5.ArrayBuffer();
+
         function onload(e) {
-            spark.append(e.target.result);  // append chunk
+            spark.append(e.target.result);
             current_chunk++;
             if (current_chunk < chunks) {
                 read_next_chunk();
@@ -48,31 +51,32 @@
             var reader = new FileReader();
             reader.onload = onload;
             var start = current_chunk * chunk_size,
-            end = Math.min(start + chunk_size, file.size);
+                    end = Math.min(start + chunk_size, file.size);
             reader.readAsArrayBuffer(slice.call(file, start, end));
         };
         read_next_chunk();
     }
     $("#chunked_upload").fileupload({
-        url: "http://127.0.0.1:8081/v1/VNF/chunked_upload/",
+        url: "http://127.0.0.1:8081/v2/nf_image/chunked_upload/",
         dataType: "json",
-        maxChunkSize: 100000, // Chunks of 100 kB
-        add: function(e, data) { // Called before starting upload
+        replaceFileInput: false,
+        maxChunkSize: 1000000, // Chunks of 1000 kB
+        add: function (e, data) { // Called when a file is chosen
             $("#messages").empty();
             // If this is the second file you're uploading we need to remove the
             // old upload_id.
             form_data = [];
-            //vnf_id = $("#vnf_id").val();
-            calculate_md5(data.files[0], 100000);  // Again, chunks of 100 kB
-            //data.submit();
-	        $('#uploadbtn').data(data).prop("disabled", false);
+            calculate_md5(data.files[0], 1000000);  // Again, chunks of 1000 kB
+            // When a file is chosen the Upload button becomes active
+            $('#uploadbtn').data(data).prop("disabled", false);
         },
         chunkdone: function (e, data) { // Called after uploading each chunk
             if (form_data.length < 1) {
                 form_data.push(
-                    {"name": "upload_id", "value": data.result.upload_id}
+                        {"name": "upload_id", "value": data.result.upload_id}
                 );
             }
+            current_offset = data.result.offset;
             $("#messages").append($('<p>').text(JSON.stringify(data.result)));
             var progress = parseInt(data.loaded / data.total * 100.0, 10);
             $("#progress").text(Array(progress).join("=") + "> " + progress + "%");
@@ -83,31 +87,47 @@
         done: function (e, data) { // Called when the file has completely uploaded
             $.ajax({
                 type: "POST",
-                url: "http://127.0.0.1:8081/v1/VNF/chunked_upload_complete/",
+                url: "http://127.0.0.1:8081/v2/nf_image/chunked_upload_complete/",
                 data: {
                     upload_id: data.result.upload_id,
                     md5: md5,
                     vnf_id: vnf_id
                 },
                 dataType: "json",
-                success: function(data) {
+                success: function (data) {
                     $("#messages").append($('<p>').text(JSON.stringify(data)));
                 }
             });
         },
-    });
-    $('#uploadbtn')
-    .on('click', function () {
-        var data = $(this).data();
-	    vnf_id = $("#vnf_id").val();
-        if (vnf_id === "") {
-		    alert("VNF ID is required!");
-	    }
-        else {
-            data.submit();
+        fail: function (e, data) {
+            var retry = function () {
+                data.uploadedBytes = current_offset;
+                // Clear the previous data and restart the upload from current offset
+                data.data = null;
+                data.submit();
+            };
+            if (data.errorThrown !== 'abort' &&
+                    data.uploadedBytes < data.files[0].size &&
+                    retries < 100) { // Max 100 retries
+                retries += 1;
+                window.setTimeout(retry, 1000); // Retry to upload the failed chunk every 1 second
+                return;
+            }
+            retries = 0;
         }
     });
-    </script>
+    $('#uploadbtn')
+            .on('click', function () {
+                var data = $(this).data();
+                vnf_id = $("#vnf_id").val();
+                if (vnf_id === "") {
+                    alert("VNF ID is required!");
+                }
+                else {
+                    data.submit();
+                }
+            });
+</script>
 
 </body>
 </html>
