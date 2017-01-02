@@ -119,7 +119,17 @@ class VNFTemplateV2(VNFTemplate):
         """
         Update an existing VNF template
         """
-        return super(VNFTemplateV2, self).put(request, vnf_id)
+        if request.META['CONTENT_TYPE'] != 'application/json':
+            return HttpResponse(status=415)
+        try:
+            if 'functional-capability' not in request.data.keys():
+                return HttpResponse("Missing functional-capability field", status=400)
+            capability = request.data['functional-capability']
+            template = json.dumps(request.data)
+        except:
+            return HttpResponse(status=400)
+        API.updateVNFTemplate(vnf_id, template, capability)
+        return HttpResponse(status=200)
 
 
 class VNFImage(APIView):

@@ -61,6 +61,9 @@ def addVNFTemplateV2(template, capability, image_upload_status):
 	# Return the generated NF ID
 	return vnf_id
 
+def updateVNFTemplate(vnf_id, template, capability):
+	VNF.objects.filter(vnf_id=str(vnf_id)).update(template=base64.b64encode(template), capability=capability)
+
 def addNF_FGraphs(nf_fgraphs_id, nf_fgraphs_template):
 	if nf_fgraphs_id != json.loads(nf_fgraphs_template)['forwarding-graph']['id']:
 		return False
