@@ -56,20 +56,20 @@ class VNFTemplateAllV2(VNFTemplateAll):
         """
         if request.META['CONTENT_TYPE'] != 'application/json':
             return HttpResponse(status=415)
+        if 'image-upload-status' not in request.data.keys() or 'template' not in request.data.keys():
+            return HttpResponse("Wrong request format", status=400)
+        if all(request.data['image-upload-status'] not in state for state in VNF.IMAGE_UPLOAD_STATUS):
+            return HttpResponse("Wrong value of image-upload-status field", status=400)
+        image_upload_status = request.data['image-upload-status']
         try:
-            if 'functional-capability' not in request.data.keys():
+            if 'functional-capability' not in request.data['template'].keys():
                 return HttpResponse("Missing functional-capability field", status=400)
-            capability = request.data['functional-capability']
-            template = json.dumps(request.data)
+            capability = request.data['template']['functional-capability']
+            template = json.dumps(request.data['template'])
         except:
             return HttpResponse(status=400)
 
-        image_upload_complete = False
-        # if 'uri-type' in request.data.keys():
-        #     if request.data['uri-type'] == 'remote-file':
-        #         image_upload_complete = True
-
-        vnf_id = API.addVNFTemplateV2(template, capability, image_upload_complete)
+        vnf_id = API.addVNFTemplateV2(template, capability, image_upload_status)
         return HttpResponse(vnf_id, status=200)
 
 
@@ -153,7 +153,9 @@ class VNFImage(APIView):
         Remove a disk image for a VNF
         """
         try:
-            os.remove(os.path.join(imagesDir, vnf_id))
+            state = VNF.objects.get(vnf_id=str(vnf_id)).image_upload_status
+            if state == VNF.COMPLETED:
+                os.remove(os.path.join(imagesDir, vnf_id))
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=400)
@@ -312,7 +314,7 @@ class MyChunkedUploadCompleteView(ChunkedUploadCompleteView, APIView):
         # Store the uploaded NF image file
         imageRepo.storeImage(request.POST['vnf_id'], uploaded_file)
         # Set the NF template to completed (in order to show in the available NFs list)
-        VNF.objects.filter(vnf_id=str(request.POST['vnf_id'])).update(image_upload_complete=True)
+        VNF.objects.filter(vnf_id=str(request.POST['vnf_id'])).update(image_upload_status=VNF.COMPLETED)
 
     def get_response_data(self, chunked_upload, request):
         filename = chunked_upload.filename

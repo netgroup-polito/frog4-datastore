@@ -46,7 +46,8 @@ class Command(BaseCommand):
             # Deleting NF Template associated to uncompleted NF Image upload
             uncomplete_vnf = self.vnf.objects.filter(vnf_id=chunked_upload.vnf_id)
             if len(uncomplete_vnf) != 0:
-                uncomplete_vnf[0].delete()
+                if uncomplete_vnf[0].image_upload_status == VNF.IN_PROGRESS:
+                    uncomplete_vnf[0].delete()
 
             count[chunked_upload.status] += 1
             # Deleting uncompleted NF Image upload both from DB and from disk

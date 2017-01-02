@@ -7,10 +7,22 @@ class MyChunkedUpload(ChunkedUpload):
 MyChunkedUpload._meta.get_field('user').null = True
 
 class VNF(models.Model):
+	IN_PROGRESS = 'IP'
+	COMPLETED = 'CO'
+	REMOTE = 'RE'
+	IMAGE_UPLOAD_STATUS = (
+		(IN_PROGRESS, 'In progress'),
+		(COMPLETED, 'Completed'),
+		(REMOTE, 'Remote')
+	)
 	vnf_id = models.CharField(primary_key=True, unique=True,max_length=100)
 	template = models.CharField(max_length=60000,blank=False)
 	capability = models.CharField(max_length=600)
-	image_upload_complete = models.BooleanField(default=True)
+	image_upload_status = models.CharField(
+		max_length=2,
+		choices=IMAGE_UPLOAD_STATUS,
+		default=COMPLETED
+	)
 
 class NF_FGraphs(models.Model):
 	nf_fgraphs_id = models.CharField(primary_key=True, unique=True,max_length=100)
