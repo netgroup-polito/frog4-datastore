@@ -165,7 +165,7 @@ class VNFImage(APIView):
         try:
             state = VNF.objects.get(vnf_id=str(vnf_id)).image_upload_status
             if state == VNF.COMPLETED:
-                os.remove(os.path.join(imagesDir, vnf_id))
+                imageRepo.deleteImage(vnf_id)
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=400)
