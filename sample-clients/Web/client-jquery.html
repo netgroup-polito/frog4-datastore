@@ -71,7 +71,7 @@
             $('#uploadbtn').data(data).prop("disabled", false);
         },
         chunkdone: function (e, data) { // Called after uploading each chunk
-            if (form_data.length < 1) {
+            if (form_data.length < 2) {
                 form_data.push(
                         {"name": "upload_id", "value": data.result.upload_id}
                 );
@@ -82,6 +82,9 @@
             $("#progress").text(Array(progress).join("=") + "> " + progress + "%");
         },
         submit: function (e, data) { // Called before uploading each chunk
+            form_data.push(
+                    {"name": "vnf_id", "value": vnf_id}
+            )
             data.formData = form_data;
         },
         done: function (e, data) { // Called when the file has completely uploaded

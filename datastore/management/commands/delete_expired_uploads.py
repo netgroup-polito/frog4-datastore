@@ -7,14 +7,15 @@ from django.utils.translation import ugettext as _
 from chunked_upload.settings import EXPIRATION_DELTA
 from chunked_upload.constants import UPLOADING, COMPLETE
 from datastore.models import MyChunkedUpload
+from datastore.models import VNF
 
 prompt_msg = _(u'Do you want to delete {obj}?')
 
 
 class Command(BaseCommand):
 
-    # Has to be a ChunkedUpload subclass
     model = MyChunkedUpload
+    vnf = VNF
 
     help = 'Deletes chunked uploads that have already expired.'
 
@@ -42,8 +43,14 @@ class Command(BaseCommand):
                 if answer == 'n':
                     continue
 
+            # Deleting NF Template associated to uncompleted NF Image upload
+            uncomplete_vnf = self.vnf.objects.filter(vnf_id=chunked_upload.vnf_id)
+            if len(uncomplete_vnf) != 0:
+                if uncomplete_vnf[0].image_upload_status == VNF.IN_PROGRESS:
+                    uncomplete_vnf[0].delete()
+
             count[chunked_upload.status] += 1
-            # Deleting objects individually to call delete method explicitly
+            # Deleting uncompleted NF Image upload both from DB and from disk
             chunked_upload.delete()
 
         print('%i complete uploads were deleted.' % count[COMPLETE])

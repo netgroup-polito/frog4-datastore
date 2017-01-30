@@ -131,7 +131,7 @@
                     },
                     chunkdone: function (e, data) { // Called after uploading each chunk
                         scope.$apply(function () {
-                            if (scope.formData.length < 1) {
+                            if (scope.formData.length < 2) {
                                 scope.formData.push(
                                         {"name": "upload_id", "value": data.result.upload_id}
                                 );
@@ -143,6 +143,11 @@
                         });
                     },
                     submit: function (e, data) { // Called before uploading each chunk
+                        scope.$apply(function () {
+                            scope.formData.push(
+                                    {"name": "vnf_id", "value": scope.vnfId}
+                            );
+                        });
                         data.formData = scope.formData;
                     },
                     done: function (e, data) { // Called when the file has completely uploaded
