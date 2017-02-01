@@ -4,6 +4,10 @@ This project defines some minimal code needed to start a server storing informat
 * NF template: file that describes the characteristics of the network function, such as the its capapbility (e.g., firewall, NAT), required resources (e.g., amount of CPU, amount of memory), required execution environment (e.g., KVM hypervisor, Docker, etc), number and type of virtual interfaces, and more. Examples of templates, which have to follow a proper [schema](https://github.com/netgroup-polito/vnf-template-library/blob/master/schema.json), are available in [sample-templates](./sample-templates);
 * NF image: raw image of the NF (e.g, VM disk, archive file). In some cases the NF image is stored directly in this server; in other cases it is stored in a different backend (e.g., OpenStack Glance);
 * NF-FG: file that describes a network functions forwaring graph, written according to a proper [schema](https://github.com/netgroup-polito/nffg-library/blob/master/schema.json).
+* YANG model: schema used to validate the configuration forwarded to the VNF by means of the configuration service
+* YIN model: it is the JSON representation of a YANG model, it is used by the GUI in order to provide the users a simple interface for the management of their services
+
+Moreover it provides a configuration service exploited by FROG v4 in order to retrieve/push configuration from/into VNFs
 
 ## How to configure the datastore
 
@@ -30,7 +34,7 @@ Creating a private environment in which we run Django 1.8; unfortunately API cha
 	$ cd [frog4-datastore]
 	$ virtualenv .env
 	$ source .env/bin/activate
-	$ pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt
+	$ pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt pyang
 	$ python manage.py makemigrations datastore
 	$ python manage.py migrate
 	$ python manage.py runserver --d datastore_config.ini [uses config/default-config.ini if '--d' is missing]
