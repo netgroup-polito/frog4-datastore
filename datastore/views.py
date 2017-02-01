@@ -129,7 +129,9 @@ class VNFTemplateV2(VNFTemplate):
             template = json.dumps(request.data)
         except:
             return HttpResponse(status=400)
-        API.updateVNFTemplate(vnf_id, template, capability)
+        res = API.updateVNFTemplate(vnf_id, template, capability)
+        if not res:
+            return HttpResponse(status=404)
         return HttpResponse(status=200)
 
 
