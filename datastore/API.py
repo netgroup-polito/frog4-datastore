@@ -69,8 +69,8 @@ def addVNFTemplateV2(template, capability, image_upload_status):
 
 
 def updateVNFTemplate(vnf_id, template, capability):
-    template = VNF.objects.filter(vnf_id=vnf_id)
-    if len(template) == 0:
+    old_template = VNF.objects.filter(vnf_id=vnf_id)
+    if len(old_template) == 0:
         return False
     VNF.objects.filter(vnf_id=str(vnf_id)).update(template=base64.b64encode(template), capability=capability)
     return True
