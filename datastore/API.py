@@ -77,8 +77,6 @@ def updateVNFTemplate(vnf_id, template, capability):
 
 
 def addNF_FGraphs(nf_fgraphs_id, nf_fgraphs_template):
-    if nf_fgraphs_id != json.loads(nf_fgraphs_template)['forwarding-graph']['id']:
-        return False
     nf_fgraphs= NF_FGraphs(nf_fgraphs_id = str(nf_fgraphs_id), nf_fgraphs_template = base64.b64encode(nf_fgraphs_template))
     nf_fgraphs.save()
     return True

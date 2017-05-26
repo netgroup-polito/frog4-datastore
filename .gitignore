@@ -1,4 +1,11 @@
+*.*~
 *.pyc
 *.log
 .*
+*.project
+*.pydevproject
+datastore/migrations/*
 !/.gitignore
+
+.idea/
+__pycache__/
