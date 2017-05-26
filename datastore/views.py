@@ -198,64 +198,75 @@ class NFFGraphs(APIView):
     """
     """
 
-    def put(self, request, nf_fgraphs_id):
+    def put(self, request, nf_fgraph_id = None):
         """
-        Update or create a new Network Functions Forwarding Graph
+        Update a Network Functions Forwarding Graph
         """
         if request.META['CONTENT_TYPE'] != 'application/json':
             return HttpResponse(status=415)
         try:
-            template = json.dumps(request.data)
+            nffg = json.dumps(request.data)
+            if nf_fgraph_id is None:
+                API.addNF_FGraphs(nffg)
+                print('add')
+            else:
+                API.updateNF_FGraphs(nf_fgraph_id, nffg)
+                print(nf_fgraph_id)
+                print('update')
+            return Response(data=json.loads(nffg))
         except:
             return HttpResponse(status=400)
-        if API.addNF_FGraphs(nf_fgraphs_id, template) == False:
-            return HttpResponse("The given ID is different from the template", status=400)
-        return Response(data=json.loads(template))
 
-    def delete(self, request, nf_fgraphs_id):
+    def delete(self, request, nf_fgraph_id):
         """
         Delete an existig Network Functions Forwarding Graph
         """
-        if API.deleteNF_FGraphs(nf_fgraphs_id):
+        if API.deleteNF_FGraphs(nf_fgraph_id):
             return HttpResponse(status=200)
         return HttpResponse(status=404)
 
-    def get(self, request, nf_fgraphs_id):
+    def get(self, request, nf_fgraph_id):
         """
         Get the Network Functions Forwarding Graph
         """
-        template = API.getNF_FGraphs(nf_fgraphs_id)
-        if template is None:
+        nffg = API.getNF_FGraphs(nf_fgraph_id)
+        if nffg is None:
             return HttpResponse(status=404)
-        return Response(data=template)
+        return Response(data=nffg)
 
 
-class NF_FGraphsAll(APIView):
+class NFFGResource(APIView):
     """
     """
+
+    def put(self, request):
+        """
+        Create a New Network Functions Forwarding Graph
+        Deploy a graph
+        """
+        return NFFGraphs().put(request)
 
     def get(self, request):
         """
         Get the all Network Functions Forwarding Graph
         """
-        template = API.getNF_FGraphs()
-        if template is None:
+        nffgs = API.getNF_FGraphs()
+        if nffgs is None:
             return HttpResponse(status=404)
-        return Response(data=template)
+        return Response(data=nffgs)
 
-
-class NF_FGraphsAll_graphs_names(APIView):
+class nffg_digest(APIView):
     """
     """
 
     def get(self, request):
         """
-        Get the all NFFGs Names and ids
+        Get the all NFFGs digest
         """
-        template = API.getNF_FGraphsAll_graphs_names()
-        if template is None:
+        digest = API.getnffg_digest()
+        if digest is None:
             return HttpResponse(status=404)
-        return Response(data=template)
+        return Response(data=digest)
 
 
 class Capability(APIView):

@@ -30,9 +30,8 @@ class VNF(models.Model):
 
 
 class NF_FGraphs(models.Model):
-    nf_fgraphs_id = models.CharField(primary_key=True, unique=True, max_length=100)
-    nf_fgraphs_template = models.TextField()
-
+    nf_fgraph_id = models.CharField(primary_key=True, unique=True, max_length=100)
+    nffg = models.TextField()
 
 class YANG_Models(models.Model):
     yang_id = models.CharField(primary_key=True, unique=True, max_length=100)

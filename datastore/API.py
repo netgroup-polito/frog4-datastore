@@ -76,44 +76,53 @@ def updateVNFTemplate(vnf_id, template, capability):
     return True
 
 
-def addNF_FGraphs(nf_fgraphs_id, nf_fgraphs_template):
-    nf_fgraphs= NF_FGraphs(nf_fgraphs_id = str(nf_fgraphs_id), nf_fgraphs_template = base64.b64encode(nf_fgraphs_template))
+def addNF_FGraphs(nffg):
+    while True:
+        new_nf_fgraph_id = ''.join(random.SystemRandom().choice(string.digits) for _ in range(8))
+        old_nf_fgraph_id = NF_FGraphs.objects.filter(nf_fgraph_id=str(new_nf_fgraph_id))
+        if len(old_nf_fgraph_id) == 0:
+            nf_fgraph_id = str(new_nf_fgraph_id)
+            break
+    nf_fgraphs= NF_FGraphs(nf_fgraph_id = str(nf_fgraph_id), nffg = base64.b64encode(nffg))
     nf_fgraphs.save()
     return True
 
+def updateNF_FGraphs(nf_fgraph_id, nffg):
+    nf_fgraphs = NF_FGraphs.objects.filter(nf_fgraph_id=str(nf_fgraph_id)).update(nffg = base64.b64encode(nffg))
+    return True
 
-def getNF_FGraphs(nf_fgraphs_id=None):
-    if nf_fgraphs_id is not None:
-        nf_fgraphs = NF_FGraphs.objects.filter(nf_fgraphs_id=str(nf_fgraphs_id))
+def getNF_FGraphs(nf_fgraph_id=None):
+    if nf_fgraph_id is not None:
+        nf_fgraphs = NF_FGraphs.objects.filter(nf_fgraph_id=str(nf_fgraph_id))
     else:
         nf_fgraphs = NF_FGraphs.objects.all()
         nf_fgraphsList = []
         for foundnf_fgraphs in nf_fgraphs:
             newnf_fgraphs = {}
-            newnf_fgraphs['nf_fgraph_id'] = foundnf_fgraphs.nf_fgraphs_id
-            newnf_fgraphs['forwarding-graph'] = json.loads(base64.b64decode(foundnf_fgraphs.nf_fgraphs_template))['forwarding-graph']
+            newnf_fgraphs['nf_fgraph_id'] = foundnf_fgraphs.nf_fgraph_id
+            newnf_fgraphs['forwarding-graph'] = json.loads(base64.b64decode(foundnf_fgraphs.nffg))['forwarding-graph']
             nf_fgraphsList.append(newnf_fgraphs)
         return {'list': nf_fgraphsList}
 
     if len(nf_fgraphs) != 0:
-        return json.loads(base64.b64decode(nf_fgraphs[0].nf_fgraphs_template))
+        return json.loads(base64.b64decode(nf_fgraphs[0].nffg))
     return None
 
 
-def deleteNF_FGraphs(nf_fgraphs_id):
-    nf_fgraphs = NF_FGraphs.objects.filter(nf_fgraphs_id=str(nf_fgraphs_id))
+def deleteNF_FGraphs(nf_fgraph_id):
+    nf_fgraphs = NF_FGraphs.objects.filter(nf_fgraph_id=str(nf_fgraph_id))
     if len(nf_fgraphs) != 0:
         nf_fgraphs[0].delete()
         return True
     return False
 
 
-def getNF_FGraphsAll_graphs_names():
+def getnffg_digest():
     nf_fgraphs = NF_FGraphs.objects.all()
     nf_fgraphsList = []
     for foundnf_fgraphs in nf_fgraphs:
         nf_fgraphs_name = {}
-        newnf_fgraphs = json.loads(base64.b64decode(foundnf_fgraphs.nf_fgraphs_template))['forwarding-graph']
+        newnf_fgraphs = json.loads(base64.b64decode(foundnf_fgraphs.nffg))['forwarding-graph']
         if 'name' in newnf_fgraphs.keys():
             nf_fgraphs_name['name'] = newnf_fgraphs['name']
         if 'id' in newnf_fgraphs.keys():
