@@ -79,17 +79,17 @@ def updateVNFTemplate(vnf_id, template, capability):
 def addNF_FGraphs(nffg):
     while True:
         new_nf_fgraph_id = ''.join(random.SystemRandom().choice(string.digits) for _ in range(8))
-        old_nf_fgraph_id = NF_FGraphs.objects.filter(nf_fgraph_id=str(new_nf_fgraph_id))
-        if len(old_nf_fgraph_id) == 0:
+        nf_fgraph = NF_FGraphs.objects.filter(nf_fgraph_id=str(new_nf_fgraph_id))
+        if len(nf_fgraph) == 0:
             nf_fgraph_id = str(new_nf_fgraph_id)
             break
-    nf_fgraphs= NF_FGraphs(nf_fgraph_id = str(nf_fgraph_id), nffg = base64.b64encode(nffg))
+    nf_fgraphs = NF_FGraphs(nf_fgraph_id = str(nf_fgraph_id), nffg = base64.b64encode(nffg))
     nf_fgraphs.save()
-    return True
+    return nf_fgraph_id
 
 def updateNF_FGraphs(nf_fgraph_id, nffg):
     nf_fgraphs = NF_FGraphs.objects.filter(nf_fgraph_id=str(nf_fgraph_id)).update(nffg = base64.b64encode(nffg))
-    return True
+    return nf_fgraph_id
 
 def getNF_FGraphs(nf_fgraph_id=None):
     if nf_fgraph_id is not None:
@@ -120,14 +120,13 @@ def deleteNF_FGraphs(nf_fgraph_id):
 def getnffg_digest():
     nf_fgraphs = NF_FGraphs.objects.all()
     nf_fgraphsList = []
-    for foundnf_fgraphs in nf_fgraphs:
-        nf_fgraphs_name = {}
-        newnf_fgraphs = json.loads(base64.b64decode(foundnf_fgraphs.nffg))['forwarding-graph']
+    for foundnf_fgraph in nf_fgraphs:
+        nf_fgraphs_digest = {}
+        newnf_fgraphs = json.loads(base64.b64decode(foundnf_fgraph.nffg))['forwarding-graph']
         if 'name' in newnf_fgraphs.keys():
-            nf_fgraphs_name['name'] = newnf_fgraphs['name']
-        if 'id' in newnf_fgraphs.keys():
-            nf_fgraphs_name['id'] = newnf_fgraphs['id']
-        nf_fgraphsList.append(nf_fgraphs_name)
+            nf_fgraphs_digest['name'] = newnf_fgraphs['name']
+        nf_fgraphs_digest['id'] = foundnf_fgraph.nf_fgraph_id
+        nf_fgraphsList.append(nf_fgraphs_digest)
     if len(nf_fgraphs) != 0:
         return {'list': nf_fgraphsList}
     return None

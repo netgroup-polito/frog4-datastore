@@ -207,15 +207,13 @@ class NFFGraphs(APIView):
         try:
             nffg = json.dumps(request.data)
             if nf_fgraph_id is None:
-                API.addNF_FGraphs(nffg)
-                print('add')
+                graph_id = API.addNF_FGraphs(nffg)
+
             else:
-                API.updateNF_FGraphs(nf_fgraph_id, nffg)
-                print(nf_fgraph_id)
-                print('update')
-            return Response(data=json.loads(nffg))
+                graph_id = API.updateNF_FGraphs(nf_fgraph_id, nffg)
         except:
             return HttpResponse(status=400)
+        return HttpResponse(graph_id, status=200)
 
     def delete(self, request, nf_fgraph_id):
         """
@@ -266,7 +264,7 @@ class nffg_digest(APIView):
         digest = API.getnffg_digest()
         if digest is None:
             return HttpResponse(status=404)
-        return Response(data=digest)
+        return Response(data = digest)
 
 
 class Capability(APIView):
