@@ -2,19 +2,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import API
-from subprocess import call
-from django.core.exceptions import ObjectDoesNotExist
 from ConfigParser import SafeConfigParser
-from wsgiref.util import FileWrapper
 from django.http import HttpResponse
-from django.db.models import Q
 import os, logging
-import xml.etree.ElementTree as ET
-from rest_framework.decorators import api_view
-from rest_framework.reverse import reverse
-from rest_framework.parsers import FileUploadParser, MultiPartParser
-from subprocess import call
-from xml.dom import minidom
 import json
 from datastore.imageRepository.LocalRepository import LocalRepository
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
@@ -45,11 +35,6 @@ class VNFTemplateAll(APIView):
         if template is None:
             return HttpResponse(status=404)
         return Response(data=template)
-
-
-class VNFTemplateAllV2(VNFTemplateAll):
-    """
-    """
 
     def put(self, request):
         """
@@ -87,21 +72,6 @@ class VNFTemplate(APIView):
             return HttpResponse(status=404)
         return Response(data=template)
 
-    def put(self, request, vnf_id):
-        """
-        Update or create a new VNF template
-        """
-        if request.META['CONTENT_TYPE'] != 'application/json':
-            return HttpResponse(status=415)
-        try:
-            if 'functional-capability' not in request.data.keys():
-                return HttpResponse("Missing functional-capability field", status=400)
-            capability = request.data['functional-capability']
-            template = json.dumps(request.data)
-        except:
-            return HttpResponse(status=400)
-        API.addVNFTemplate(vnf_id, template, capability)
-        return HttpResponse(status=200)
 
     def delete(self, request, vnf_id):
         """
@@ -110,11 +80,6 @@ class VNFTemplate(APIView):
         if API.deleteVNFTemplate(vnf_id):
             return HttpResponse(status=200)
         return HttpResponse(status=404)
-
-
-class VNFTemplateV2(VNFTemplate):
-    """
-    """
 
     def put(self, request, vnf_id):
         """
@@ -135,11 +100,24 @@ class VNFTemplateV2(VNFTemplate):
         return HttpResponse(status=200)
 
 
+
 class VNFImage(APIView):
     """
     """
 
     def get(self, request, vnf_id):
+        """
+        Get the disk image of a VNF
+        """
+        return self.getImage(request, vnf_id)
+
+    def delete(self, request, vnf_id):
+        """
+        Remove a disk image for a VNF
+        """
+        return self.deleteImage(request, vnf_id)
+
+    def getImage(self, request, vnf_id):
         """
         Get the disk image of a VNF
         """
@@ -161,7 +139,7 @@ class VNFImage(APIView):
         except:
             return HttpResponse(status=400)
 
-    def delete(self, request, vnf_id):
+    def deleteImage(self, request, vnf_id):
         """
         Remove a disk image for a VNF
         """
@@ -172,26 +150,6 @@ class VNFImage(APIView):
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=400)
-
-
-class VNFImageV2(APIView):
-    """
-    """
-
-    def __init__(self):
-        self.VNFImage = VNFImage()
-
-    def get(self, request, vnf_id):
-        """
-        Get the disk image of a VNF
-        """
-        return self.VNFImage.get(request, vnf_id)
-
-    def delete(self, request, vnf_id):
-        """
-        Remove a disk image for a VNF
-        """
-        return self.VNFImage.delete(request, vnf_id)
 
 
 class NFFGraphs(APIView):
