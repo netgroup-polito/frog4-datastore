@@ -42,21 +42,36 @@ class VNFTemplateAll(APIView):
         """
         if request.META['CONTENT_TYPE'] != 'application/json':
             return HttpResponse(status=415)
-        if 'image-upload-status' not in request.data.keys() or 'template' not in request.data.keys():
-            return HttpResponse("Wrong request format", status=400)
-        if all(request.data['image-upload-status'] not in state for state in VNF.IMAGE_UPLOAD_STATUS):
+
+        if 'image-upload-status' not in request.data.keys():
+            try:
+                if 'functional-capability' not in request.data.keys():
+                    return HttpResponse("Missing functional-capability field", status=400)
+                capability = request.data['functional-capability']
+                template = json.dumps(request.data)
+                image_upload_status = VNF.REMOTE
+            except:
+                return HttpResponse(status=400)
+
+        elif all(request.data['image-upload-status'] not in state for state in VNF.IMAGE_UPLOAD_STATUS):
             return HttpResponse("Wrong value of image-upload-status field", status=400)
-        image_upload_status = request.data['image-upload-status']
-        try:
-            if 'functional-capability' not in request.data['template'].keys():
-                return HttpResponse("Missing functional-capability field", status=400)
-            capability = request.data['template']['functional-capability']
-            template = json.dumps(request.data['template'])
-        except:
-            return HttpResponse(status=400)
+
+        elif 'template' not in request.data.keys():
+            return HttpResponse("Missing template field", status=400)
+
+        else:
+            try:
+                if 'functional-capability' not in request.data['template'].keys():
+                    return HttpResponse("Missing functional-capability field", status=400)
+                capability = request.data['template']['functional-capability']
+                template = json.dumps(request.data['template'])
+                image_upload_status = request.data['image-upload-status']
+            except:
+                return HttpResponse(status=400)
 
         vnf_id = API.addVNFTemplateV2(template, capability, image_upload_status)
         return HttpResponse(vnf_id, status=200)
+
 
 
 class VNFTemplate(APIView):
