@@ -32,12 +32,12 @@ Creating a private environment in which we run Django 1.8; unfortunately API cha
 ### First time
 
 	$ cd [frog4-datastore]
-	$ virtualenv .env
+	$ sudo virtualenv .env
 	$ source .env/bin/activate
-	$ pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt pyang xmltodict
-	$ python manage.py makemigrations datastore
-	$ python manage.py migrate
-	$ python manage.py runserver --d datastore_config.ini [uses config/default-config.ini if '--d' is missing]
+	$ sudo pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt pyang xmltodict
+	$ sudo python manage.py makemigrations datastore
+	$ sudo python manage.py migrate
+	$ sudo python manage.py runserver --d datastore_config.ini [uses config/default-config.ini if '--d' is missing]
 
 ### Next times 
 
