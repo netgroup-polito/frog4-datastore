@@ -11,7 +11,7 @@ Moreover it provides a configuration service exploited by FROG v4 in order to re
 
 ## How to install the Datastore dependencies and setup the SQL database
 
-	sudo apt-get install mysql-server libmysqlclient-dev libffi-dev python-virtualenv
+	sudo apt-get install mysql-server libmysqlclient-dev libffi-dev python-virtualenv python3-pip
 	
 During the installation process, you have to chose the *root* password for the SQL database on the machine where you are going to install/create the Datastore.
 
