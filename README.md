@@ -27,15 +27,17 @@ To create and initialize the SQL database:
 	
 where `datastore` and `datastorePWD` can be replaced respectively by the username and the passowrd that the Datastore will use to access to the SQL database. In case you change them, you have also to edit these [two lines](https://github.com/netgroup-polito/frog4-datastore/blob/master/datastore_main/settings.py#L71-L72) in the python code.
 
-## Datastore configuration file
+## How to execute the Datastore
+
+### Datastore configuration file
 
 In order to properly configure the Datastore, edit its [configuration file](https://github.com/netgroup-polito/frog4-datastore/blob/master/config/default-config.ini). Particularly, in this file you have to set the TCP port to be used to interact with the Datastore through its REST API.
 
-## How to execute the datastore
+# Run it!
 
 Creating a private environment in which we run Django 1.8; unfortunately API changed in 1.9, hence it is better to use this specific version only in our project and start the server:
 
-### First time
+#### First time
 
 	$ cd [frog4-datastore]
 	$ virtualenv .env
@@ -45,7 +47,7 @@ Creating a private environment in which we run Django 1.8; unfortunately API cha
 	$ python manage.py migrate
 	$ python manage.py runserver --d datastore_config.ini [uses config/default-config.ini if '--d' is missing]
 
-### Next times 
+#### Next times 
 
 	$ cd [frog4-datastore]
 	$ source .env/bin/activate
