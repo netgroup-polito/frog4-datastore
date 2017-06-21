@@ -9,11 +9,11 @@ This project defines some minimal code needed to start a server storing informat
 
 Moreover it provides a configuration service exploited by FROG v4 in order to retrieve/push configuration from/into VNFs
 
-## How to configure the datastore
+## How to install the Datastore dependencies and setup the SQL database
 
 	sudo apt-get install mysql-server libmysqlclient-dev libffi-dev python-virtualenv
-
-This server requires a backend database to store the information.
+	
+During the installation process, you have to chose the *root* password for the SQL database on the machine where you are going to install/create the Datastore.
 
 To create and initialize the SQL database:
 
@@ -24,6 +24,8 @@ To create and initialize the SQL database:
         mysql> GRANT ALL PRIVILEGES ON frog4_datastore.* TO 'datastore'@'%' \
             IDENTIFIED BY 'datastorePWD';
         mysql> exit
+	
+where 'datastore' and 'datastorePWD' can be replaced respectively by the username and the passowrd that the Datastore will use to access to the SQL database.
 
 ## How to execute the datastore
 
