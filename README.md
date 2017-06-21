@@ -27,6 +27,14 @@ To create and initialize the SQL database:
 	
 where `datastore` and `datastorePWD` can be replaced respectively by the username and the passowrd that the Datastore will use to access to the SQL database. In case you change them, you have also to edit these [two lines](https://github.com/netgroup-polito/frog4-datastore/blob/master/datastore_main/settings.py#L71-L72) in the python code.
 
+## Retrieve the code
+
+Now you have to clone this repository and all the submodules. Submodules include components that are part of the orchestrator but that are being developed in different repositories. For this, please follow the steps below:
+
+    git clone https://github.com/netgroup-polito/frog4-datastore
+    cd frog4-datastore
+    git submodule init && git submodule update
+
 ## How to execute the Datastore
 
 ### Datastore configuration file
