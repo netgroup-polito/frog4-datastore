@@ -55,7 +55,7 @@ Creating a private environment in which we run Django 1.8; unfortunately API cha
 
 ## How to interact with the datastore
 
-A description of the API exposed by the datastore is available at the URL: *ip_address:port/docs*
+A description of the API exposed by the datastore is available at the URL: `ip_address:port/docs` (e.g., `127.0.0.1:8081/docs`).
 
 ## How to clear uncompleted uploads
 
