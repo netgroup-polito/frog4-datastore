@@ -33,7 +33,7 @@ where `datastore` and `datastorePWD` can be replaced respectively by the usernam
 
 In order to properly configure the Datastore, edit its [configuration file](https://github.com/netgroup-polito/frog4-datastore/blob/master/config/default-config.ini). Particularly, in this file you have to set the TCP port to be used to interact with the Datastore through its REST API.
 
-# Run it!
+### Run it!
 
 Creating a private environment in which we run Django 1.8; unfortunately API changed in 1.9, hence it is better to use this specific version only in our project and start the server:
 
