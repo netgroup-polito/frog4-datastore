@@ -1,7 +1,7 @@
 {
     "name": "cirros",
     "expandable": false,
-    "uri": "http://controller:9292/v2/images/48dafb6d-96ac-4130-bd25-3c4a9959e5b1",
+    "uri": "http://external_repository:9292/v2/images/48dafb6d-96ac-4130-bd25-3c4a9959e5b1",
     "uri-type": "remote-file",
     "functional-capability": "cirros",
     "vnf-type": "virtual-machine-kvm",
