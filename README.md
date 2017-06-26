@@ -29,11 +29,9 @@ where `datastore` and `datastorePWD` can be replaced respectively by the usernam
 
 ## Retrieve the code
 
-Now you have to clone this repository and all the submodules. Submodules include components that are part of the orchestrator but that are being developed in different repositories. For this, please follow the steps below:
+Now you have to clone this repository using the following command:
 
     git clone https://github.com/netgroup-polito/frog4-datastore
-    cd frog4-datastore
-    git submodule init && git submodule update
 
 ## How to execute the Datastore
 
