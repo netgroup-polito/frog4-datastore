@@ -186,25 +186,32 @@ class NFFGraphs(APIView):
                 graph_id = API.updateNF_FGraphs(nf_fgraph_id, nffg)
         except:
             return HttpResponse(status=400)
-        return HttpResponse(graph_id, status=200)
+        response_uuid = dict()
+        response_uuid["nffg-uuid"] = graph_id
+        return HttpResponse(json.dumps(response_uuid), status=200)
 
     def delete(self, request, nf_fgraph_id):
         """
         Delete an existig Network Functions Forwarding Graph
         """
-        if API.deleteNF_FGraphs(nf_fgraph_id):
-            return HttpResponse(status=200)
-        return HttpResponse(status=404)
+        try:
+            if API.deleteNF_FGraphs(nf_fgraph_id):
+                return HttpResponse(status=200)
+            return HttpResponse(status=404)
+        except:
+            return HttpResponse(status=400)
 
     def get(self, request, nf_fgraph_id):
         """
         Get the Network Functions Forwarding Graph
         """
-        nffg = API.getNF_FGraphs(nf_fgraph_id)
-        if nffg is None:
-            return HttpResponse(status=404)
-        return Response(data=nffg)
-
+        try:
+            nffg = API.getNF_FGraphs(nf_fgraph_id)
+            if nffg is None:
+                return HttpResponse(status=404)
+            return Response(data=nffg)
+        except:
+            return HttpResponse(status=400)
 
 class NFFGResource(APIView):
     """
@@ -221,10 +228,13 @@ class NFFGResource(APIView):
         """
         Get the all Network Functions Forwarding Graph
         """
-        nffgs = API.getNF_FGraphs()
-        if nffgs is None:
-            return HttpResponse(status=404)
-        return Response(data=nffgs)
+        try:
+            nffgs = API.getNF_FGraphs()
+            if nffgs is None:
+                return HttpResponse(status=404)
+            return Response(data=nffgs)
+        except:
+            return HttpResponse(status=400)
 
 class nffg_digest(APIView):
     """
@@ -234,10 +244,13 @@ class nffg_digest(APIView):
         """
         Get the all NFFGs digest
         """
-        digest = API.getnffg_digest()
-        if digest is None:
-            return HttpResponse(status=404)
-        return Response(data = digest)
+        try:
+            digest = API.getnffg_digest()
+            if digest is None:
+                return HttpResponse(status=404)
+            return Response(data = digest)
+        except:
+            return HttpResponse(status=400)
 
 
 class Capability(APIView):
@@ -245,10 +258,13 @@ class Capability(APIView):
         """
         Get the all VNF with the respectively capability
         """
-        template = API.getTemplatesFromCapability(capability)
-        if template is None:
-            return HttpResponse(status=404)
-        return Response(data=template)
+        try:
+            template = API.getTemplatesFromCapability(capability)
+            if template is None:
+                return HttpResponse(status=404)
+            return Response(data=template)
+        except:
+            return HttpResponse(status=400)
 
 
 class MyChunkedUploadView(ChunkedUploadView, APIView):

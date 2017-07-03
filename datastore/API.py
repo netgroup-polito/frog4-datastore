@@ -1,5 +1,6 @@
 from datastore.models import VNF, NF_FGraphs, YANG_Models
 import base64
+import uuid
 import json
 import random
 import string
@@ -31,6 +32,8 @@ def getTemplatesFromCapability(vnfCapability):
     vnf = VNF.objects.filter(capability=str(vnfCapability))
     # Filter out templates with uncompleted images
     vnf = vnf.exclude(image_upload_status=VNF.IN_PROGRESS)
+    if len(vnf) == 0:
+        return None
     vnfList = []
     for foundVNF in vnf:
         newVNF = {}
@@ -78,7 +81,7 @@ def updateVNFTemplate(vnf_id, template, capability):
 
 def addNF_FGraphs(nffg):
     while True:
-        new_nf_fgraph_id = ''.join(random.SystemRandom().choice(string.digits) for _ in range(8))
+        new_nf_fgraph_id = uuid.uuid4().int
         nf_fgraph = NF_FGraphs.objects.filter(nf_fgraph_id=str(new_nf_fgraph_id))
         if len(nf_fgraph) == 0:
             nf_fgraph_id = str(new_nf_fgraph_id)
@@ -94,8 +97,14 @@ def updateNF_FGraphs(nf_fgraph_id, nffg):
 def getNF_FGraphs(nf_fgraph_id=None):
     if nf_fgraph_id is not None:
         nf_fgraphs = NF_FGraphs.objects.filter(nf_fgraph_id=str(nf_fgraph_id))
+        if len(nf_fgraphs) == 0:
+            return None
+        return json.loads(base64.b64decode(nf_fgraphs[0].nffg))
+
     else:
         nf_fgraphs = NF_FGraphs.objects.all()
+        if len(nf_fgraphs) == 0:
+            return None
         nf_fgraphsList = []
         for foundnf_fgraphs in nf_fgraphs:
             newnf_fgraphs = {}
@@ -103,10 +112,6 @@ def getNF_FGraphs(nf_fgraph_id=None):
             newnf_fgraphs['forwarding-graph'] = json.loads(base64.b64decode(foundnf_fgraphs.nffg))['forwarding-graph']
             nf_fgraphsList.append(newnf_fgraphs)
         return {'list': nf_fgraphsList}
-
-    if len(nf_fgraphs) != 0:
-        return json.loads(base64.b64decode(nf_fgraphs[0].nffg))
-    return None
 
 
 def deleteNF_FGraphs(nf_fgraph_id):
