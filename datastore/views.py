@@ -12,6 +12,8 @@ from .models import MyChunkedUpload, VNF
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from datastore.YANGParser import YANGParser
+from vnf_template_library.validator import ValidateTemplate
+from nffg_library.validator import ValidateNF_FG
 
 parser = SafeConfigParser()
 parser.read(os.environ["DATASTORE_CONFIG_FILE"])
@@ -48,22 +50,21 @@ class VNFTemplateAll(APIView):
                 if 'functional-capability' not in request.data.keys():
                     return HttpResponse("Missing functional-capability field", status=400)
                 capability = request.data['functional-capability']
+                ValidateTemplate().validate(request.data)
                 template = json.dumps(request.data)
                 image_upload_status = VNF.REMOTE
             except:
                 return HttpResponse(status=400)
-
         elif all(request.data['image-upload-status'] not in state for state in VNF.IMAGE_UPLOAD_STATUS):
             return HttpResponse("Wrong value of image-upload-status field", status=400)
-
         elif 'template' not in request.data.keys():
             return HttpResponse("Missing template field", status=400)
-
         else:
             try:
                 if 'functional-capability' not in request.data['template'].keys():
                     return HttpResponse("Missing functional-capability field", status=400)
                 capability = request.data['template']['functional-capability']
+                ValidateTemplate().validate(request.data['template'])
                 template = json.dumps(request.data['template'])
                 image_upload_status = request.data['image-upload-status']
             except:
@@ -71,7 +72,6 @@ class VNFTemplateAll(APIView):
 
         vnf_id = API.addVNFTemplateV2(template, capability, image_upload_status)
         return HttpResponse(vnf_id, status=200)
-
 
 
 class VNFTemplate(APIView):
@@ -106,6 +106,7 @@ class VNFTemplate(APIView):
             if 'functional-capability' not in request.data.keys():
                 return HttpResponse("Missing functional-capability field", status=400)
             capability = request.data['functional-capability']
+            ValidateTemplate().validate(request.data)
             template = json.dumps(request.data)
         except:
             return HttpResponse(status=400)
@@ -178,6 +179,7 @@ class NFFGraphs(APIView):
         if request.META['CONTENT_TYPE'] != 'application/json':
             return HttpResponse(status=415)
         try:
+            ValidateNF_FG().validate(request.data)
             nffg = json.dumps(request.data)
             if nf_fgraph_id is None:
                 graph_id = API.addNF_FGraphs(nffg)
