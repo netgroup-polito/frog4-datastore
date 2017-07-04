@@ -81,7 +81,7 @@ def updateVNFTemplate(vnf_id, template, capability):
 
 def addNF_FGraphs(nffg):
     while True:
-        new_nf_fgraph_id = uuid.uuid4().int
+        new_nf_fgraph_id = uuid.uuid4()
         nf_fgraph = NF_FGraphs.objects.filter(nf_fgraph_id=str(new_nf_fgraph_id))
         if len(nf_fgraph) == 0:
             nf_fgraph_id = str(new_nf_fgraph_id)
