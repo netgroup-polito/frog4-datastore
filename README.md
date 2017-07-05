@@ -51,7 +51,7 @@ Creating a private environment in which we run Django 1.8; unfortunately API cha
 	$ cd [frog4-datastore]
 	$ virtualenv .env
 	$ source .env/bin/activate
-	$ pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt pyang xmltodict
+	$ pip install django==1.8.2 djangorestframework MySQL-python django-rest-swagger==0.3.5 django-chunked-upload django-cors-headers wrapt bcrypt pyang xmltodict jsonschema
 	$ python manage.py makemigrations datastore
 	$ python manage.py migrate
 	$ python manage.py runserver [--d datastore_config.ini] 
