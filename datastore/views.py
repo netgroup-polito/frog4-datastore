@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import JSONParser
 import API
 from ConfigParser import SafeConfigParser
 from django.http import HttpResponse
@@ -8,12 +9,15 @@ import os, logging
 import json
 from datastore.imageRepository.LocalRepository import LocalRepository
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
-from .models import MyChunkedUpload, VNF
+from .models import MyChunkedUpload, VNF_Image
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from datastore.YANGParser import YANGParser
 from vnf_template_library.validator import ValidateTemplate
 from nffg_library.validator import ValidateNF_FG
+from nffg_library.exception import NF_FGValidationError
+from nffg_library.exception import WrongNumberOfPorts
+from nffg_library.exception import InexistentLabelFound
 
 parser = SafeConfigParser()
 parser.read(os.environ["DATASTORE_CONFIG_FILE"])
@@ -52,10 +56,10 @@ class VNFTemplateAll(APIView):
                 capability = request.data['functional-capability']
                 ValidateTemplate().validate(request.data)
                 template = json.dumps(request.data)
-                image_upload_status = VNF.REMOTE
+                image_upload_status = VNF_Image.REMOTE
             except:
                 return HttpResponse(status=400)
-        elif all(request.data['image-upload-status'] not in state for state in VNF.IMAGE_UPLOAD_STATUS):
+        elif all(request.data['image-upload-status'] not in state for state in VNF_Image.IMAGE_UPLOAD_STATUS):
             return HttpResponse("Wrong value of image-upload-status field", status=400)
         elif 'template' not in request.data.keys():
             return HttpResponse("Missing template field", status=400)
@@ -70,8 +74,8 @@ class VNFTemplateAll(APIView):
             except:
                 return HttpResponse(status=400)
 
-        vnf_id = API.addVNFTemplateV2(template, capability, image_upload_status)
-        return HttpResponse(vnf_id, status=200)
+        res = API.addVNFTemplateV2(template, capability, image_upload_status)
+        return HttpResponse(res, status=200)
 
 
 class VNFTemplate(APIView):
@@ -117,7 +121,7 @@ class VNFTemplate(APIView):
 
 
 
-class VNFImage(APIView):
+class VNF_Image(APIView):
     """
     """
 
@@ -160,8 +164,8 @@ class VNFImage(APIView):
         Remove a disk image for a VNF
         """
         try:
-            state = VNF.objects.get(vnf_id=str(vnf_id)).image_upload_status
-            if state == VNF.COMPLETED:
+            state = VNF_Image.objects.get(vnf_id=str(vnf_id)).image_upload_status
+            if state == VNF_Image.COMPLETED:
                 imageRepo.deleteImage(vnf_id)
             return HttpResponse(status=200)
         except:
@@ -169,63 +173,164 @@ class VNFImage(APIView):
 
 
 class NFFGraphs(APIView):
-    """
-    """
-
-    def put(self, request, nf_fgraph_id = None):
+    def put(self, request, user_id, graph_id):
         """
         Update a Network Functions Forwarding Graph
+        ---
+         # YAML (must be separated by `---`)
+            parameters:
+                - name: user_id
+                  required: true
+                  paramType: path
+                  type: string
+                - name: graph_id
+                  required: true
+                  paramType: path
+                  type: string
+                - name: nffg
+                  required: true
+                  paramType: body
+                  type: json
+
+            responseMessages:
+                - code: 200
+                  message: Ok
+                - code: 404
+                  message: Not found
         """
         if request.META['CONTENT_TYPE'] != 'application/json':
             return HttpResponse(status=415)
         try:
             ValidateNF_FG().validate(request.data)
             nffg = json.dumps(request.data)
-            if nf_fgraph_id is None:
-                graph_id = API.addNF_FGraphs(nffg)
-
-            else:
-                graph_id = API.updateNF_FGraphs(nf_fgraph_id, nffg)
-        except:
-            return HttpResponse(status=400)
+            if not API.updateNF_FGraphs(user_id, graph_id, nffg):
+                return HttpResponse("NFFG of user " + user_id + " with ID " + graph_id + " not found", status=404)
+        except (NF_FGValidationError, WrongNumberOfPorts, InexistentLabelFound) as error:
+            return HttpResponse("NFFG validation failed: " + error.message, status=400)
         response_uuid = dict()
         response_uuid["nffg-uuid"] = graph_id
         return HttpResponse(json.dumps(response_uuid), status=200)
 
-    def delete(self, request, nf_fgraph_id):
+    def delete(self, request, user_id, graph_id):
         """
         Delete an existig Network Functions Forwarding Graph
+        ---
+        # YAML (must be separated by `---`)
+            parameters:
+                - name: user_id
+                  required: true
+                  paramType: path
+                  type: string
+                - name: graph_id
+                  required: true
+                  paramType: path
+                  type: string
+
+            responseMessages:
+                - code: 200
+                  message: Ok
+                - code: 404
+                  message: Not found
         """
         try:
-            if API.deleteNF_FGraphs(nf_fgraph_id):
+            if API.deleteNF_FGraphs(user_id, graph_id):
                 return HttpResponse(status=200)
             return HttpResponse(status=404)
         except:
             return HttpResponse(status=400)
 
-    def get(self, request, nf_fgraph_id):
+    def get(self, request, user_id, graph_id):
         """
         Get the Network Functions Forwarding Graph
+        ---
+        # YAML (must be separated by `---`)
+            parameters:
+                - name: user_id
+                  required: true
+                  paramType: path
+                  type: string
+                - name: graph_id
+                  required: true
+                  paramType: path
+                  type: string
+
+            responseMessages:
+                - code: 200
+                  message: Ok
+                - code: 404
+                  message: Not found
         """
         try:
-            nffg = API.getNF_FGraphs(nf_fgraph_id)
+            nffg = API.getNF_FGraphs(user_id, graph_id)
             if nffg is None:
                 return HttpResponse(status=404)
             return Response(data=nffg)
         except:
             return HttpResponse(status=400)
 
-class NFFGResource(APIView):
-    """
-    """
 
-    def put(self, request):
+class NFFGByUser(APIView):
+    def get(self, request, user_id):
+        """
+        Get all the NFFGs of the specified user
+        ---
+           # YAML (must be separated by `---`)
+           parameters:
+               - name: user_id
+                 required: true
+                 paramType: path
+                 type: string
+
+           responseMessages:
+               - code: 200
+                 message: Ok
+               - code: 404
+                 message: Not found
+        """
+        nffgs = API.getNFFGByUser(user_id)
+        if nffgs is None:
+            return HttpResponse(status=404)
+        return Response(data=nffgs)
+
+    def post(self, request, user_id):
         """
         Create a New Network Functions Forwarding Graph
         Deploy a graph
-        """
-        return NFFGraphs().put(request)
+        ---
+            # YAML (must be separated by `---`)
+            parameters:
+                - name: user_id
+                  required: true
+                  paramType: path
+                  type: string
+                - name: nffg
+                  required: true
+                  paramType: body
+                  type: json
 
+            responseMessages:
+                - code: 200
+                  message: Ok
+                - code: 404
+                  message: Not found
+        """
+        nffg = request.data
+        if nffg == {}:
+            return HttpResponse("No nffg was provided", status=422)
+        try:
+            ValidateNF_FG().validate(request.data)
+            nffg = json.dumps(request.data)
+        except (NF_FGValidationError, WrongNumberOfPorts, InexistentLabelFound) as error:
+            return HttpResponse("NFFG validation failed: " + error.message, status=400)
+        graph_id = API.addNF_FGraphs(user_id, nffg)
+        if graph_id is None:
+            return HttpResponse("User " + user_id + " not found" , status=400)
+        response_uuid = dict()
+        response_uuid["nffg-uuid"] = graph_id
+        return HttpResponse(json.dumps(response_uuid), status=200)
+
+
+class NFFGAll(APIView):
     def get(self, request):
         """
         Get the all Network Functions Forwarding Graph
@@ -238,15 +343,14 @@ class NFFGResource(APIView):
         except:
             return HttpResponse(status=400)
 
-class nffg_digest(APIView):
-    """
-    """
 
+class nffg_digest(APIView):
     def get(self, request):
         """
         Get the all NFFGs digest
         """
         try:
+            API.getnffg_digests()
             digest = API.getnffg_digest()
             if digest is None:
                 return HttpResponse(status=404)
@@ -327,7 +431,7 @@ class MyChunkedUploadCompleteView(ChunkedUploadCompleteView, APIView):
         # Store the uploaded NF image file
         imageRepo.storeImage(request.POST['vnf_id'], uploaded_file)
         # Set the NF template to completed (in order to show in the available NFs list)
-        VNF.objects.filter(vnf_id=str(request.POST['vnf_id'])).update(image_upload_status=VNF.COMPLETED)
+        VNF_Image.objects.filter(vnf_id=str(request.POST['vnf_id'])).update(image_upload_status=VNF.COMPLETED)
 
     def get_response_data(self, chunked_upload, request):
         filename = chunked_upload.filename
@@ -401,3 +505,462 @@ class YIN(APIView):
         if yin is None:
             return HttpResponse(status=404)
         return Response(data=yin)
+
+
+class GraphAll(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request):
+        """
+        Get all the graphs stored into the database
+        """
+        graphs = API.getAllGraph()
+        if graphs is None:
+            return HttpResponse(status=404)
+        return Response(data=graphs)
+
+'''
+class Graph(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request, user_id, graph_id, volatility):
+        """
+        Get the graph with ID = userID, graphID
+        """
+        graph = API.getGraph(user_id, graph_id)
+        if graph is None:
+            return HttpResponse(status=404)
+        return Response(data=graph)
+
+    def post(self, request, user_id, graph_id, volatility):
+        """
+        Create a new graph entry into the DB
+        :param request:
+        :param vnf_id:
+        :param graph_id:
+        :param user_id:
+        :return:
+        """
+        res = API.addGraph(user_id, graph_id, volatility)
+        return HttpResponse(status=200)
+
+    def delete(self, request, yang_id):
+        """
+        Delete a graph entry into the DB
+        """
+        if API.deleteGraph(user_id, graph_id):
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
+'''
+
+
+class NFFGAll(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request):
+        """
+          ---
+          # YAML (must be separated by `---`)
+          responseMessages:
+              - code: 200
+                message: Ok
+              - code: 404
+                message: Not found
+         """
+        nffgs = API.getNF_FGraphs()
+        if nffgs is None:
+            return HttpResponse(status=404)
+        return Response(data=nffgs)
+
+
+class VNF(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request, configuration_id):
+        """
+            ---
+            # YAML (must be separated by `---`)
+            parameters:
+                - name: configuration_id
+                  required: true
+                  paramType: path
+                  type: string
+
+            responseMessages:
+                - code: 200
+                  message: Ok
+                - code: 404
+                  message: Not found
+        """
+        vnf = API.getVNF(configuration_id)
+        if vnf == None:
+            return HttpResponse(status=404)
+        return Response(data=vnf)
+
+    def delete(self, request, configuration_id):
+        """
+                   ---
+                   # YAML (must be separated by `---`)
+                   parameters:
+                       - name: configuration_id
+                         required: true
+                         paramType: path
+                         type: string
+
+                   responseMessages:
+                       - code: 200
+                         message: Ok
+                       - code: 404
+                         message: Not found
+               """
+        if API.deleteVNF(configuration_id):
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
+
+    def post(self, request, configuration_id):
+        """
+               ---
+               # YAML (must be separated by `---`)
+               parameters:
+                   - name: configuration_id
+                     required: true
+                     paramType: path
+                     type: string
+
+               responseMessages:
+                   - code: 200
+                     message: Ok
+                   - code: 404
+                     message: Not found
+         """
+        res = API.addVNF(configuration_id)
+        if not res:
+            return HttpResponse("The vnf with ID " + configuration_id + " already exists", status=409)
+        return HttpResponse(status=200)
+
+
+class RestEndpoint(APIView):
+    def get(self, request, configuration_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: configuration_id
+                    required: true
+                    paramType: path
+                    type: string
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+         """
+        endpoint = API.getRESTEndpoint(configuration_id)
+        if endpoint is None:
+            return HttpResponse("The vnf with ID " + configuration_id + " does not exist", status=404)
+        if endpoint == "":
+            return HttpResponse(status=404)
+        return Response(data=endpoint)
+
+    def put(self, request, configuration_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: configuration_id
+                    required: true
+                    paramType: path
+                    type: string
+                  - name: endpoint
+                    required: true
+                    paramType: body
+                    type: string
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+         """
+        endpoint = request.data
+        if endpoint == {}:
+            return HttpResponse("No endpoint was provided", status=422)
+        if API.putRESTEndpoint(configuration_id, endpoint):
+            return HttpResponse(status=200)
+        return HttpResponse("The vnf with ID " + configuration_id + " does not exist", status=404)
+
+    def delete(self, request, configuration_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: configuration_id
+                    required: true
+                    paramType: path
+                    type: string
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+         """
+        if API.deleteRESTEndpoint(configuration_id):
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
+
+#    def post(self, request, configuration_id, endpoint):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: configuration_id
+                    required: true
+                    paramType: path
+                    type: string
+                  - name: endpoint
+                    required: true
+                    paramType: body
+                    type: json
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+         """
+#        res = API.addRESTEndpoint(configuration_id, endpoint)
+#        if not res:
+#            return HttpResponse("The vnf with ID " + configuration_id + " already exists", status=409)
+#        return HttpResponse(status=200)
+
+'''
+class VNFStatus(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request, user_id, graph_id, vnf_id):
+        status = API.getStatus(user_id, graph_id, vnf_id)
+        if status == "":
+            return HttpResponse(status=404)
+        return Response(data=json.loads(status))
+
+    def post(self, request, user_id, graph_id, vnf_id):
+        status = request.data
+        res = API.addStatus(user_id, graph_id, vnf_id, status)
+        if res is True:
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
+
+    def delete(self, request, user_id, graph_id, vnf_id):
+        if API.deleteStatus(user_id, graph_id, vnf_id):
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
+
+    def put(self, request, vnf_id, graph_id, user_id):
+        if request.META['CONTENT_TYPE'] != 'application/json':
+            return HttpResponse(status=415)
+        data = request.stream.read()
+        if data == "":
+            raise ParseError(detail="no yang was provided")
+        status = API.updateStatus(vnf_id, graph_id, user_id, data.decode())
+        return HttpResponse(status=status)
+'''
+
+class VNFBootingConfiguration(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request, configuration_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: configuration_id
+                    required: true
+                    paramType: path
+                    type: string
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+         """
+        configuration = API.getBootConfig(configuration_id)
+        if configuration is None:
+            return HttpResponse("The vnf with ID " + configuration_id + " does not exist", status=404)
+        if configuration == "":
+            return HttpResponse(status=404)
+        return Response(data=json.loads(configuration))
+
+#    def post(self, request, configuration_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: configuration_id
+                    required: true
+                    paramType: path
+                    type: string
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+         """
+#        configuration = request.data
+#        if configuration is None:
+#            return HttpResponse("No configuration was provided", status=401)
+
+#        res = API.addBootConfig(configuration_id, configuration)
+#        return HttpResponse(status=200)
+
+    def delete(self, request, configuration_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: configuration_id
+                    required: true
+                    paramType: path
+                    type: string
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+         """
+        if API.deleteBootConfig(configuration_id):
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
+
+    def put(self, request, configuration_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: configuration_id
+                    required: true
+                    paramType: path
+                    type: string
+                  - name: configuration
+                    required: true
+                    paramType: body
+                    type: json
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+         """
+        if request.META['CONTENT_TYPE'] != 'application/json':
+            return HttpResponse(status=415)
+        data = request.stream.read()
+        if data == {}:
+            return HttpResponse("No configuration was provided", status=422)
+        if API.updateBootConfig(configuration_id, data.decode()):
+            return HttpResponse(status=200)
+        return HttpResponse("The vnf with ID " + configuration_id + " does not exist", status=404)
+
+
+class UserAll(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+         """
+        users = API.getAllUser()
+        if users is None:
+            return HttpResponse(status=404)
+        return Response(data=users)
+
+class User(APIView):
+    parser_classes = (JSONParser,)
+
+    def get(self, request, user_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: user_id
+                    required: true
+                    paramType: path
+                    type: string
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+        """
+        user = API.getUser(user_id)
+        if user is None:
+            return HttpResponse(status=404)
+        return Response(data=user)
+
+    def post(self, request, user_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: user_id
+                    required: true
+                    paramType: path
+                    type: string
+                  - name: broker keys
+                    required: true
+                    paramType: body
+                    type: json
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+                  - code: 422
+                    message: Missing 'broker key' parameter inside the body
+                  - code: 409
+                    message: The user already exists
+        """
+        #if request.META['CONTENT_TYPE'] != 'application/json':
+            #return HttpResponse(status=415)
+
+        broker_keys = json.dumps(request.data)
+        if broker_keys == "{}":
+            return HttpResponse("No keys were provided", status=422)
+        res = API.addUser(user_id, broker_keys)
+        if not res:
+            return HttpResponse("The user " + user_id + " already exists", status=409)
+        return HttpResponse(status=200)
+
+    def delete(self, request, user_id):
+        """
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: user_id
+                    required: true
+                    paramType: path
+                    type: string
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+        """
+        if API.deleteUser(user_id):
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
+
+
