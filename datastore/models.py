@@ -40,7 +40,7 @@ class NF_FGraphs(models.Model):
 #        ('p', 'Permanent')
 #    )
 
-    user_id = models.CharField(unique=True, max_length=100)
+    user_id = models.CharField(max_length=100)
     nf_fgraph_id = models.CharField(primary_key=True, unique=True, max_length=100)
     nffg = models.TextField()
 #    volatility = models.CharField(max_length=1, choices=VOLATILITYCHOICE)
