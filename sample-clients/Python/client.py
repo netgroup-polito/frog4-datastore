@@ -5,7 +5,7 @@ Client for the VNF Repository API. All methods return a Response object.
 '''
 class Client:
 	def __init__(self,base_URL):
-		self.base_URL=base_URL+'/v2/'
+		self.base_URL=base_URL+'/'
 		self.headers={"Accept":'application/json','Content-type':'application/json'}
 
 	def get_template(self, vnf_id):

@@ -57,7 +57,7 @@
         read_next_chunk();
     }
     $("#chunked_upload").fileupload({
-        url: "http://127.0.0.1:8081/v2/nf_image/chunked_upload/",
+        url: "http://127.0.0.1:8081/nf_image/chunked_upload/",
         dataType: "json",
         replaceFileInput: false,
         maxChunkSize: 1000000, // Chunks of 1000 kB
@@ -90,7 +90,7 @@
         done: function (e, data) { // Called when the file has completely uploaded
             $.ajax({
                 type: "POST",
-                url: "http://127.0.0.1:8081/v2/nf_image/chunked_upload_complete/",
+                url: "http://127.0.0.1:8081/nf_image/chunked_upload_complete/",
                 data: {
                     upload_id: data.result.upload_id,
                     md5: md5,
