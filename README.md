@@ -23,6 +23,7 @@ To create and initialize the SQL database:
             IDENTIFIED BY 'datastorePWD';
         mysql> GRANT ALL PRIVILEGES ON frog4_datastore.* TO 'datastore'@'%' \
             IDENTIFIED BY 'datastorePWD';
+        mysql> ALTER DATABASE `frog4_datastore` CHARACTER SET utf8;
         mysql> exit
 	
 where `datastore` and `datastorePWD` can be replaced respectively by the username and the password that the Datastore will use to access to the SQL database. In case you change them, you have also to edit these [two lines](https://github.com/netgroup-polito/frog4-datastore/blob/master/datastore_main/settings.py#L71-L72) in the python code.
