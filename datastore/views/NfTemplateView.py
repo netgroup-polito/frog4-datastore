@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import datastore.services.NfTemplateService as API
+import datastore.services.NfCapabilityService as CapabilityApi
 from vnf_template_library.validator import ValidateTemplate
-from datastore.models import VNF_Image
 
 
 class VNFTemplateAll(APIView):
@@ -45,36 +45,18 @@ class VNFTemplateAll(APIView):
                 - code: 400
                   message: Bad request
         """
+        try:
+            if request.META['CONTENT_TYPE'] != 'application/json':
+                return HttpResponse(status=415)
 
-        if request.META['CONTENT_TYPE'] != 'application/json':
-            return HttpResponse(status=415)
+            if 'functional-capability' not in request.data.keys():
+                return HttpResponse("Missing functional-capability field", status=400)
 
-        if 'image-upload-status' not in request.data.keys():
-            try:
-                if 'functional-capability' not in request.data.keys():
-                    return HttpResponse("Missing functional-capability field", status=400)
-                capability = request.data['functional-capability']
-                ValidateTemplate().validate(request.data)
-                template = json.dumps(request.data)
-                image_upload_status = VNF_Image.REMOTE
-            except Exception as e:
-                return HttpResponse(e.message, status=400)
-        elif all(request.data['image-upload-status'] not in state for state in VNF_Image.IMAGE_UPLOAD_STATUS):
-            return HttpResponse("Wrong value of image-upload-status field", status=400)
-        elif 'template' not in request.data.keys():
-            return HttpResponse("Missing template field", status=400)
-        else:
-            try:
-                if 'functional-capability' not in request.data['template'].keys():
-                    return HttpResponse("Missing functional-capability field", status=400)
-                capability = request.data['template']['functional-capability']
-                ValidateTemplate().validate(request.data['template'])
-                template = json.dumps(request.data['template'])
-                image_upload_status = request.data['image-upload-status']
-            except Exception as e:
-                return HttpResponse(e.message, status=400)
-
-        res = API.addVNFTemplateV2(template, capability, image_upload_status)
+            ValidateTemplate().validate(request.data)
+            #template = json.dumps(request.data)
+            res = API.addVNFTemplateV2(request.data)
+        except Exception as e:
+            return HttpResponse(e.message, status=400)
         return HttpResponse(res, status=200)
 
 
@@ -122,7 +104,13 @@ class VNFTemplate(APIView):
                 - code: 404
                   message: Not found
         """
+        template = API.getVNFTemplate(template_id)
+        if template is None:
+            return HttpResponse(status=404)
+        capability = template['functional-capability']
         if API.deleteVNFTemplate(template_id):
+            if CapabilityApi.getTemplatesFromCapability(capability) is None:
+                CapabilityApi.deleteCapability(capability)
             return HttpResponse(status=200)
         return HttpResponse(status=404)
 

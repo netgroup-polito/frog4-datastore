@@ -9,7 +9,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from datastore.imageRepository.LocalRepository import LocalRepository
-from datastore.models import MyChunkedUpload, VNF_Image
+from datastore.models.MyChunkedUpload import My_ChunkedUpload
+from datastore.models.NfImage import VNF_Image
 import datastore.services.NfImageService as API
 
 parser = SafeConfigParser()
@@ -30,54 +31,119 @@ class VNF_Image(APIView):
         """
         Get the disk image of a VNF
         """
-        return self.getImage(request, vnf_id)
+        res = API.getImage(vnf_id)
+        if res is None:
+            return Response(status=404)
+        wrapper = res[0]
+        file_len = res[1]
+        response = HttpResponse(wrapper, content_type='text/plain', status=status.HTTP_200_OK)
+        response['Content-Length'] = file_len
+        return response
 
     def delete(self, request, vnf_id):
         """
         Remove a disk image for a VNF
         """
-        return self.deleteImage(request, vnf_id)
-
-    def getImage(self, request, vnf_id):
-        """
-        Get the disk image of a VNF
-        """
-        try:
-            (wrapper, fileLen) = imageRepo.getImage(vnf_id)
-            response = HttpResponse(wrapper, content_type='text/plain', status=status.HTTP_200_OK)
-            response['Content-Length'] = fileLen
-            return response
-        except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        if API.deleteImage(vnf_id):
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
 
     def put(self, request, vnf_id):
         """
         Insert/update a disk image for a VNF.
         """
-        try:
-            imageRepo.storeImage(vnf_id, request.data['file'])
+        if not 'file' in request.data:
+            return HttpResponse("No image was provided", status=422)
+        if API.updateImage(vnf_id, request.data['file']):
             return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=400)
+        return HttpResponse(status=400)
 
-    def deleteImage(self, request, vnf_id):
+
+class Template(APIView):
+    def get(self, request, vnf_id):
         """
-        Remove a disk image for a VNF
+            Get the template of a specific VNF image
+            ---
+            # YAML (must be separated by `---`)
+            parameters:
+              - name: vnf_id
+                required: true
+                paramType: path
+                type: string
+
+            responseMessages:
+              - code: 200
+                message: Ok
+              - code: 404
+                message: Not found
         """
-        try:
-            state = VNF_Image.objects.get(vnf_id=str(vnf_id)).image_upload_status
-            if state == VNF_Image.COMPLETED:
-                imageRepo.deleteImage(vnf_id)
+        template_id, msg = API.getTemplate(vnf_id)
+        if template_id is None:
+            if msg == "":
+                return HttpResponse(status=404)
+            return HttpResponse(msg, status=404)
+        return Response(data=template_id)
+
+    def put(self, request, vnf_id):
+        """
+            Update the template of a specific VNF image
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: vnf_id
+                    required: true
+                    paramType: path
+                    type: string
+                  - name: template_id
+                    required: true
+                    paramType: body
+                    type: json
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+                    code: 422
+                    message: No configuration inserted into the body of the request
+         """
+        if request.META['CONTENT_TYPE'] != 'application/json':
+            return HttpResponse(status=415)
+        if request.data == {}:
+            return HttpResponse("No template was provided", status=422)
+
+        res, msg = API.updateTemplate(vnf_id, request.data)
+        if res:
             return HttpResponse(status=200)
-        except:
-            return HttpResponse(status=400)
+        return HttpResponse(msg, status=404)
+
+    def delete(self, request, vnf_id):
+        """
+            Delete the template of a specific VNF image
+            ---
+            # YAML (must be separated by `---`)
+            parameters:
+              - name: vnf_id
+                required: true
+                paramType: path
+                type: string
+
+            responseMessages:
+              - code: 200
+                message: Ok
+              - code: 404
+                message: Not found
+        """
+        if API.deleteBootConfig(vnf_id):
+            return HttpResponse(status=200)
+        return HttpResponse(status=404)
 
 
 class MyChunkedUploadView(ChunkedUploadView, APIView):
     """
     """
     field_name = 'the_file'
-    model = MyChunkedUpload
+    model = My_ChunkedUpload
 
     def get_extra_attrs(self, request):
         attrs = {}
@@ -107,7 +173,7 @@ class MyChunkedUploadView(ChunkedUploadView, APIView):
 class MyChunkedUploadCompleteView(ChunkedUploadCompleteView, APIView):
     """
     """
-    model = MyChunkedUpload
+    model = My_ChunkedUpload
 
     def post(self, request, *args, **kwargs):
         """
@@ -131,7 +197,7 @@ class MyChunkedUploadCompleteView(ChunkedUploadCompleteView, APIView):
         # Store the uploaded NF image file
         imageRepo.storeImage(request.POST['vnf_id'], uploaded_file)
         # Set the NF template to completed (in order to show in the available NFs list)
-        VNF_Image.objects.filter(vnf_id=str(request.POST['vnf_id'])).update(image_upload_status=VNF.COMPLETED)
+        VNF_Image.objects.filter(vnf_id=str(request.POST['vnf_id'])).update(image_upload_status=VNF_Image.COMPLETED)
 
     def get_response_data(self, chunked_upload, request):
         filename = chunked_upload.filename
