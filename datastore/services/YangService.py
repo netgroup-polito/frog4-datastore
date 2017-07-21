@@ -3,7 +3,7 @@ import json
 from django.db import transaction
 from rest_framework.parsers import ParseError
 
-from datastore.models import YANG_Models
+from datastore.models.Yang import YANG_Models
 from datastore.parsers.YANGtoYIN import create_yin
 
 
@@ -14,11 +14,11 @@ def getAllYANG_model():
         newYANGModel = {}
         model = base64.b64decode(foundYang.yang_model).decode('utf-8')
         newYANGModel['id'] = foundYang.yang_id
-        newYANGModel['model'] = model
+        newYANGModel['models'] = model
         yangList.append(newYANGModel)
     if len(yangList) != 0:
         return {'list': yangList}
-    return None
+    return {'list': []}
 
 
 def getYANG_model(yang_id):
@@ -62,3 +62,10 @@ def updateYANG_model(yang_id, yang_model):
         return False
     YANG_Models.objects.filter(yang_id=yang_id).update(yang_model=base64.b64encode(yang_model))
     return True
+
+
+def getYangModelObj(yang_id):
+    model = YANG_Models.objects.filter(yang_id=yang_id)
+    if len(model) > 0:
+        return model[0]
+    return None
