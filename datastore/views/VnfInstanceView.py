@@ -1,4 +1,3 @@
-import json
 import datastore.services.VnfInstanceService as API
 from django.http import HttpResponse
 from rest_framework.parsers import JSONParser
@@ -9,6 +8,7 @@ from rest_framework.views import APIView
 class VNFAll(APIView):
     def get(self, request):
         """
+            Get all the VNF instances registered to the configuration orchestrator
             ---
             # YAML (must be separated by `---`)
             responseMessages:
@@ -26,12 +26,13 @@ class VNFAll(APIView):
 class VNF(APIView):
     parser_classes = (JSONParser,)
 
-    def get(self, request, configuration_id):
+    def get(self, request, instance_id):
         """
+            Get the given VNF instance
             ---
             # YAML (must be separated by `---`)
             parameters:
-                - name: configuration_id
+                - name: instance_id
                   required: true
                   paramType: path
                   type: string
@@ -42,37 +43,39 @@ class VNF(APIView):
                 - code: 404
                   message: Not found
         """
-        vnf = API.getVNF(configuration_id)
+        vnf = API.getVNF(instance_id)
         if vnf == None:
             return HttpResponse(status=404)
         return Response(data=vnf)
 
-    def delete(self, request, configuration_id):
+    def delete(self, request, instance_id):
         """
-                   ---
-                   # YAML (must be separated by `---`)
-                   parameters:
-                       - name: configuration_id
-                         required: true
-                         paramType: path
-                         type: string
+            Delete the given VNF instance
+            ---
+            # YAML (must be separated by `---`)
+            parameters:
+               - name: instance_id
+                 required: true
+                 paramType: path
+                 type: string
 
-                   responseMessages:
-                       - code: 200
-                         message: Ok
-                       - code: 404
-                         message: Not found
-               """
-        if API.deleteVNF(configuration_id):
+            responseMessages:
+               - code: 200
+                 message: Ok
+               - code: 404
+                 message: Not found
+        """
+        if API.deleteVNF(instance_id):
             return HttpResponse(status=200)
         return HttpResponse(status=404)
 
-    def post(self, request, configuration_id):
+    def post(self, request, instance_id):
         """
+                Create a new VNF instance
                ---
                # YAML (must be separated by `---`)
                parameters:
-                   - name: configuration_id
+                   - name: instance_id
                      required: true
                      paramType: path
                      type: string
@@ -83,19 +86,20 @@ class VNF(APIView):
                    - code: 404
                      message: Not found
          """
-        res = API.addVNF(configuration_id)
+        res = API.addVNF(instance_id)
         if not res:
-            return HttpResponse("The vnf with ID " + configuration_id + " already exists", status=409)
+            return HttpResponse("The vnf with ID " + instance_id + " already exists", status=409)
         return HttpResponse(status=200)
 
 
 class RestEndpoint(APIView):
-    def get(self, request, configuration_id):
+    def get(self, request, instance_id):
         """
+            Get the REST endpoint of a specific VNF instance
               ---
               # YAML (must be separated by `---`)
               parameters:
-                  - name: configuration_id
+                  - name: instance_id
                     required: true
                     paramType: path
                     type: string
@@ -106,19 +110,20 @@ class RestEndpoint(APIView):
                   - code: 404
                     message: Not found
          """
-        endpoint = API.getRESTEndpoint(configuration_id)
+        endpoint = API.getRESTEndpoint(instance_id)
         if endpoint is None:
-            return HttpResponse("The vnf with ID " + configuration_id + " does not exist", status=404)
+            return HttpResponse("The vnf with ID " + instance_id + " does not exist", status=404)
         if endpoint == "":
             return HttpResponse(status=404)
         return Response(data=endpoint)
 
-    def put(self, request, configuration_id):
+    def put(self, request, instance_id):
         """
+            Update the REST endpoint of a specific VNF instance
               ---
               # YAML (must be separated by `---`)
               parameters:
-                  - name: configuration_id
+                  - name: instance_id
                     required: true
                     paramType: path
                     type: string
@@ -136,16 +141,17 @@ class RestEndpoint(APIView):
         endpoint = request.data
         if endpoint == {}:
             return HttpResponse("No endpoint was provided", status=422)
-        if API.putRESTEndpoint(configuration_id, endpoint):
+        if API.putRESTEndpoint(instance_id, endpoint):
             return HttpResponse(status=200)
-        return HttpResponse("The vnf with ID " + configuration_id + " does not exist", status=404)
+        return HttpResponse("The vnf with ID " + instance_id + " does not exist", status=404)
 
-    def delete(self, request, configuration_id):
+    def delete(self, request, instance_id):
         """
+            Delete the REST endpoint of a specific VNF instance
               ---
               # YAML (must be separated by `---`)
               parameters:
-                  - name: configuration_id
+                  - name: instance_id
                     required: true
                     paramType: path
                     type: string
@@ -156,7 +162,7 @@ class RestEndpoint(APIView):
                   - code: 404
                     message: Not found
          """
-        if API.deleteRESTEndpoint(configuration_id):
+        if API.deleteRESTEndpoint(instance_id):
             return HttpResponse(status=200)
         return HttpResponse(status=404)
 
@@ -164,12 +170,13 @@ class RestEndpoint(APIView):
 class VNFBootingConfiguration(APIView):
     parser_classes = (JSONParser,)
 
-    def get(self, request, configuration_id):
+    def get(self, request, instance_id):
         """
+            Get the boot configuration of a specific VNF instance
               ---
               # YAML (must be separated by `---`)
               parameters:
-                  - name: configuration_id
+                  - name: instance_id
                     required: true
                     paramType: path
                     type: string
@@ -180,19 +187,20 @@ class VNFBootingConfiguration(APIView):
                   - code: 404
                     message: Not found
          """
-        configuration = API.getBootConfig(configuration_id)
+        configuration, msg = API.getBootConfig(instance_id)
         if configuration is None:
-            return HttpResponse("The vnf with ID " + configuration_id + " does not exist", status=404)
-        if configuration == "":
-            return HttpResponse(status=404)
-        return Response(data=json.loads(configuration))
+            if msg == "":
+                return HttpResponse(status=404)
+            return HttpResponse(msg, status=404)
+        return Response(data=configuration)
 
-    def delete(self, request, configuration_id):
+    def delete(self, request, instance_id):
         """
+            Delete the boot configuration of a specific VNF instance
               ---
               # YAML (must be separated by `---`)
               parameters:
-                  - name: configuration_id
+                  - name: instance_id
                     required: true
                     paramType: path
                     type: string
@@ -203,16 +211,17 @@ class VNFBootingConfiguration(APIView):
                   - code: 404
                     message: Not found
          """
-        if API.deleteBootConfig(configuration_id):
+        if API.deleteBootConfig(instance_id):
             return HttpResponse(status=200)
         return HttpResponse(status=404)
 
-    def put(self, request, configuration_id):
+    def put(self, request, instance_id):
         """
+            Update the boot configuration of a specific VNF instance
               ---
               # YAML (must be separated by `---`)
               parameters:
-                  - name: configuration_id
+                  - name: instance_id
                     required: true
                     paramType: path
                     type: string
@@ -226,12 +235,17 @@ class VNFBootingConfiguration(APIView):
                     message: Ok
                   - code: 404
                     message: Not found
+                    code: 422
+                    message: No configuration inserted into the body of the request
          """
         if request.META['CONTENT_TYPE'] != 'application/json':
             return HttpResponse(status=415)
-        data = request.stream.read()
-        if data == {}:
-            return HttpResponse("No configuration was provided", status=422)
-        if API.updateBootConfig(configuration_id, data.decode()):
+        if 'configuration_id' not in request.data:
+            return HttpResponse("No configuration id was provided", status=422)
+        if 'user_id' not in request.data:
+            return HttpResponse("No user id was provided", status=422)
+
+        res, msg = API.updateBootConfig(instance_id, request.data['configuration_id'], request.data['user_id'])
+        if res:
             return HttpResponse(status=200)
-        return HttpResponse("The vnf with ID " + configuration_id + " does not exist", status=404)
+        return HttpResponse(msg, status=404)

@@ -2,14 +2,15 @@ import base64
 import json
 import uuid
 from django.db import transaction
-from datastore.models import User, NF_FGraphs
+from datastore.models.Nffg import NF_FGraphs
+from datastore.services import UserService
 
 
 @transaction.atomic
 def addNF_FGraphs(user_id, nffg):
-    found_user = User.objects.filter(user_id=user_id)
-    if len(found_user) == 0:
-        return None;
+    found_user = UserService.getUserObject(user_id)
+    if found_user is None:
+        return found_user
     while True:
         new_nffg_uuid = uuid.uuid4()
         graph = NF_FGraphs.objects.filter(nf_fgraph_id=str(new_nffg_uuid))
@@ -17,14 +18,14 @@ def addNF_FGraphs(user_id, nffg):
         if len(graph) == 0:
             nf_fgraph_id = str(new_nffg_uuid)
             break
-    graphs = NF_FGraphs(user_id= str(user_id), nf_fgraph_id = str(nf_fgraph_id), nffg = base64.b64encode(nffg))
+    graphs = NF_FGraphs(user=found_user, nf_fgraph_id=str(nf_fgraph_id), nffg =base64.b64encode(nffg))
     graphs.save()
     return nf_fgraph_id
 
 
 @transaction.atomic
 def updateNF_FGraphs(user_id, nf_fgraph_id, nffg):
-    foundNffg = NF_FGraphs.objects.filter(user_id =user_id).filter(nf_fgraph_id=nf_fgraph_id)
+    foundNffg = NF_FGraphs.objects.filter(user =user_id).filter(nf_fgraph_id=nf_fgraph_id)
     if len(foundNffg) == 0 or foundNffg[0].nffg == "":
         return False
     foundNffg.update(nffg = base64.b64encode(nffg))
@@ -33,7 +34,7 @@ def updateNF_FGraphs(user_id, nf_fgraph_id, nffg):
 
 def getNF_FGraphs(user_id=None, nf_fgraph_id=None):
     if nf_fgraph_id is not None and user_id is not None:
-        nf_fgraphs = NF_FGraphs.objects.filter(user_id=str(user_id)).filter(nf_fgraph_id=str(nf_fgraph_id))
+        nf_fgraphs = NF_FGraphs.objects.filter(user=str(user_id)).filter(nf_fgraph_id=str(nf_fgraph_id))
         if len(nf_fgraphs) == 0:
             return None
         return json.loads(base64.b64decode(nf_fgraphs[0].nffg))
@@ -41,20 +42,20 @@ def getNF_FGraphs(user_id=None, nf_fgraph_id=None):
     else:
         nf_fgraphs = NF_FGraphs.objects.all()
         if len(nf_fgraphs) == 0:
-            return None
+            return {'list': []}
         graphs = []
         for foundnf_fgraphs in nf_fgraphs:
             graph = {}
-            graph['user id'] = foundnf_fgraphs.user_id
+            graph['user id'] = foundnf_fgraphs.user.user_id
             graph['nffg-uuid'] = foundnf_fgraphs.nf_fgraph_id
             graph['forwarding-graph'] = json.loads(base64.b64decode(foundnf_fgraphs.nffg))['forwarding-graph']
             graphs.append(graph)
-        return {'NF-FG': graphs }
+        return {'list': graphs}
 
 
 @transaction.atomic
 def deleteNF_FGraphs(user_id, nf_fgraph_id):
-    graph = NF_FGraphs.objects.filter(user_id=str(user_id), nf_fgraph_id=str(nf_fgraph_id))
+    graph = NF_FGraphs.objects.filter(user=str(user_id), nf_fgraph_id=str(nf_fgraph_id))
     if len(graph) != 0:
         graph[0].delete()
         return True
@@ -71,23 +72,26 @@ def getNffgDigest():
         if 'name' in newnf_fgraphs.keys():
             nf_fgraphs_digest['name'] = newnf_fgraphs['name']
         nf_fgraphs_digest['nffg-uuid'] = foundnf_fgraph.nf_fgraph_id
-        nf_fgraphs_digest['user'] = foundnf_fgraph.user_id
+        nf_fgraphs_digest['user'] = foundnf_fgraph.user.user_id
         nf_fgraphsList.append(nf_fgraphs_digest)
     if len(nf_fgraphs) != 0:
-        return {'NF-FG': nf_fgraphsList}
-    return None
+        return {'list': nf_fgraphsList}
+    return {'list': []}
 
 
 def getNFFGByUser(user_id):
-    nffgs = NF_FGraphs.objects.filter(user_id=user_id)
+    if UserService.getUserObject(user_id) is None:
+        return None
+    nffgs = NF_FGraphs.objects.filter(user=user_id)
+
     nffgsList = []
     for foundNffg in nffgs:
         newNffg = {}
         nffg = base64.b64decode(foundNffg.nffg).decode('utf-8')
-        newNffg['user id'] = foundNffg.user_id
+        newNffg['user id'] = foundNffg.user.user_id
         newNffg['nffg-uuid'] = foundNffg.nf_fgraph_id
         newNffg['forwarding-graph'] = json.loads(nffg)
         nffgsList.append(newNffg)
     if len(nffgsList) != 0:
         return {'list': nffgsList}
-    return None
+    return {'list': []}

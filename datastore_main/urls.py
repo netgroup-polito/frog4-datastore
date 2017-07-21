@@ -11,7 +11,8 @@ urlpatterns = patterns('',
                        url(r'^vnf', include('datastore.rest_endpoints.VnfInstanceUrls')),
                        url(r'^nf_template', include('datastore.rest_endpoints.NfTemplateUrls')),
                        url(r'^nf_capability', include('datastore.rest_endpoints.NfCapabilityUrls')),
-                       url(r'^nf_image', include('datastore.rest_endpoints.NfImageUrls'))
+                       url(r'^nf_image', include('datastore.rest_endpoints.NfImageUrls')),
+                       url(r'^nf_configuration', include('datastore.rest_endpoints.NfConfigurationUrls'))
                        )
 
 urlpatterns += staticfiles_urlpatterns()

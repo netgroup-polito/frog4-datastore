@@ -126,7 +126,7 @@ class NFFGByUser(APIView):
         """
         nffgs = API.getNFFGByUser(user_id)
         if nffgs is None:
-            return HttpResponse(status=404)
+            return HttpResponse("User " + user_id + " not found", status=404)
         return Response(data=nffgs)
 
     def post(self, request, user_id):
@@ -148,6 +148,8 @@ class NFFGByUser(APIView):
             responseMessages:
                 - code: 200
                   message: Ok
+                - code: 400
+                  message: Bad request
                 - code: 404
                   message: Not found
         """
