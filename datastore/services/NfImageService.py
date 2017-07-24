@@ -5,6 +5,8 @@ from ConfigParser import SafeConfigParser
 from datastore.imageRepository.LocalRepository import LocalRepository
 from datastore.models.NfImage import VNF_Image
 from datastore.services import NfTemplateService
+import random
+import string
 
 
 parser = SafeConfigParser()
@@ -33,11 +35,15 @@ def deleteImage(vnf_id):
     Remove a disk image for a VNF
     """
     try:
-        state = VNF_Image.objects.get(vnf_id=str(vnf_id)).image_upload_status
+        image_found = VNF_Image.objects.get(vnf_id=str(vnf_id))
+        state = image_found.image_upload_status
+        image_found.delete()
         if state == VNF_Image.COMPLETED:
             imageRepo.deleteImage(vnf_id)
+
         return True
-    except:
+    except Exception as e:
+        print("Error: " + e.message)
         return False
 
 
@@ -49,6 +55,18 @@ def updateImage(vnf_id, image):
         return False
 
 
+@transaction.atomic
+def addImage():
+    # Generate 15 chars alphanumeric nonce and verify its uniqueness
+    while True:
+        image_id = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(15))
+        image_found = VNF_Image.objects.filter(vnf_id=image_id)
+        if len(image_found) == 0:
+            break
+    VNF_Image(vnf_id=image_id, image_upload_status=VNF_Image.IN_PROGRESS).save()
+    return image_id
+
+
 #Template reference API
 def getTemplate(vnf_id):
     found_image = VNF_Image.objects.filter(vnf_id=vnf_id)
@@ -57,7 +75,7 @@ def getTemplate(vnf_id):
     template = found_image[0].template
     if template is None:
         return None, ""
-    return template, "Ok"
+    return template.template_id, "Ok"
 
 
 @transaction.atomic
@@ -74,8 +92,12 @@ def updateTemplate(vnf_id, template_id):
     vnf = VNF_Image.objects.filter(vnf_id=vnf_id)
     if len(vnf) == 0:
         return False, "The instance of the vnf with ID " + vnf_id + " does not exist"
-    templateObj = NfTemplateService.getTemplateObject(template_id=template_id)
-    if templateObj is None:
-        return False, "The template with ID " + template_id + " does not exist"
-    vnf.update(template_id=templateObj)
+    template_obj = NfTemplateService.getTemplateObject(template_id=template_id)
+    if template_obj is None:
+        return False, "The template with ID " + str(template_id) + " does not exist"
+    vnf.update(template_id=template_obj)
     return True, "Ok"
+
+
+def completeImageUpload(vnf_id):
+    VNF_Image.objects.filter(vnf_id=vnf_id).update(image_upload_status=VNF_Image.COMPLETED)

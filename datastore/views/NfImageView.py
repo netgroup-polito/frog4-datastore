@@ -12,6 +12,8 @@ from datastore.imageRepository.LocalRepository import LocalRepository
 from datastore.models.MyChunkedUpload import My_ChunkedUpload
 from datastore.models.NfImage import VNF_Image
 import datastore.services.NfImageService as API
+import json
+
 
 parser = SafeConfigParser()
 parser.read(os.environ["DATASTORE_CONFIG_FILE"])
@@ -134,7 +136,7 @@ class Template(APIView):
               - code: 404
                 message: Not found
         """
-        if API.deleteBootConfig(vnf_id):
+        if API.deleteTemplate(vnf_id):
             return HttpResponse(status=200)
         return HttpResponse(status=404)
 
@@ -159,7 +161,17 @@ class MyChunkedUploadView(ChunkedUploadView, APIView):
 
         For further details see the note about NF Image upload API in the README_developer.
         """
-        return super(MyChunkedUploadView, self).post(request, *args, **kwargs)
+        print("post: " + request.POST['vnf_id'])
+        if request.POST['vnf_id'] == "":
+            image_id = API.addImage()
+            request.POST['vnf_id'] = image_id
+        else:
+            image_id = request.POST['vnf_id']
+        res = super(MyChunkedUploadView, self).post(request, *args, **kwargs)
+        data = json.loads(res.content)
+        data['vnf_id'] = image_id
+        res.content = json.dumps(data)
+        return res
 
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
@@ -197,7 +209,7 @@ class MyChunkedUploadCompleteView(ChunkedUploadCompleteView, APIView):
         # Store the uploaded NF image file
         imageRepo.storeImage(request.POST['vnf_id'], uploaded_file)
         # Set the NF template to completed (in order to show in the available NFs list)
-        VNF_Image.objects.filter(vnf_id=str(request.POST['vnf_id'])).update(image_upload_status=VNF_Image.COMPLETED)
+        API.completeImageUpload(str(request.POST['vnf_id']))
 
     def get_response_data(self, chunked_upload, request):
         filename = chunked_upload.filename

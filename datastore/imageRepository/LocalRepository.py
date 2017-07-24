@@ -28,7 +28,7 @@ class LocalRepository(object):
         filename = glob.glob(os.path.join(self.imagesDir, str(vnf_id) + '.*'))[0]
         wrapper = FileWrapper(file(filename))
         fileLen = os.path.getsize(filename)
-        return (wrapper, fileLen)
+        return wrapper, fileLen
 
     def deleteImage(self, vnf_id):
         filename = glob.glob(os.path.join(self.imagesDir, str(vnf_id) + '.*'))[0] if len(
