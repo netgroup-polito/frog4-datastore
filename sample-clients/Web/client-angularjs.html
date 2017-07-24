@@ -28,7 +28,7 @@
         <input type="file" name="the_file"
                ng-image-upload
                md5="{{ md5 }}"
-               vnf-id="{{ vnf_id }}"
+               vnf-id="{{vnf_id}}"
                messages="messages"
                upload-disabled="upload_disabled"
                form-data="form_data"
@@ -81,12 +81,12 @@
             read_next_chunk();
         };
         $scope.upload_image = function () {
-            if ($scope.vnf_id === "") {
+            /*if ($scope.vnf_id === "") {
                 alert("VNF ID is required!");
             }
-            else {
+            else {*/
                 $scope.data.submit();
-            }
+            //}
         };
         $scope.trustAsHtml = function (html) {
             return $sce.trustAsHtml(html);
@@ -140,6 +140,9 @@
                             scope.currentOffset = data.result.offset;
                             var progress = parseInt(data.loaded / data.total * 100.0, 10);
                             scope.progress = Array(progress).join("=") + "> " + progress + "%";
+			    scope.vnfId = data.result.vnf_id
+			    obj = data.formData.find((e)=> {if(e.name == "vnf_id") return true; return false;})
+			    obj.value = scope.vnfId
                         });
                     },
                     submit: function (e, data) { // Called before uploading each chunk

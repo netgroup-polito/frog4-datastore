@@ -80,6 +80,9 @@
             $("#messages").append($('<p>').text(JSON.stringify(data.result)));
             var progress = parseInt(data.loaded / data.total * 100.0, 10);
             $("#progress").text(Array(progress).join("=") + "> " + progress + "%");
+            vnf_id = data.result.vnf_id
+            obj = data.formData.find( (e) => {if(e.name=="vnf_id") return true;return False; } )
+            obj.value = vnf_id
         },
         submit: function (e, data) { // Called before uploading each chunk
             form_data.push(
@@ -123,12 +126,12 @@
             .on('click', function () {
                 var data = $(this).data();
                 vnf_id = $("#vnf_id").val();
-                if (vnf_id === "") {
+                /*if (vnf_id === "") {
                     alert("VNF ID is required!");
-                }
-                else {
+                }*/
+                //else{
                     data.submit();
-                }
+                //}
             });
 </script>
 
