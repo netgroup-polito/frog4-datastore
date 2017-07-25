@@ -5,11 +5,11 @@ from rest_framework.views import APIView
 import datastore.services.NfTemplateService as API
 import datastore.services.NfCapabilityService as CapabilityApi
 from vnf_template_library.validator import ValidateTemplate
+from rest_framework.parsers import JSONParser
 
 
 class VNFTemplateAll(APIView):
-    """
-    """
+    parser_classes = (JSONParser,)
 
     def get(self, request):
         """
@@ -61,8 +61,7 @@ class VNFTemplateAll(APIView):
 
 
 class VNFTemplate(APIView):
-    """
-    """
+    parser_classes = (JSONParser,)
 
     def get(self, request, template_id):
         """
@@ -85,7 +84,6 @@ class VNFTemplate(APIView):
         if template is None:
             return HttpResponse(status=404)
         return Response(data=template)
-
 
     def delete(self, request, template_id):
         """
