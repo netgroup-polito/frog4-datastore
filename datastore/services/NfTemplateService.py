@@ -30,7 +30,11 @@ def getVNFTemplate(template_id=None):
 def deleteVNFTemplate(template_id):
     template = NF_Template.objects.filter(template_id=str(template_id))
     if len(template) != 0:
+        capability = template.capability.capability_id
         template[0].delete()
+        template = NF_Template.objects.filter(capability=capability)
+        if len(template) == 0:
+            CapabilityApi.deleteCapability(capability)
         return True
     return False
 
