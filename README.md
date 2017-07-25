@@ -20,7 +20,7 @@ This project defines some minimal code needed to start a server that stores most
 	
 During the installation process, you have to chose the *root* password for the SQL database on the machine where you are going to install/create the Datastore.
 
-The [script](https://github.com/netgroup-polito/frog4-datastore/blob/conf-orch-db/script/mysql_script.sql) creates and initializes the SQL database:
+This [script](https://github.com/netgroup-polito/frog4-datastore/blob/conf-orch-db/script/mysql_script.sql) creates and initializes the SQL database:
 
 	cd [frog4-datastore]
 	mysql -u root -p
