@@ -104,6 +104,8 @@ class YANGModels(APIView):
         """
         yang_model = request.data
         res = API.addYANG_model(yang_id, yang_model)
+        if not res:
+            return HttpResponse("Yang with ID " + yang_id + " already exists", status=409)
         return HttpResponse(status=200)
 
     def put(self, request, yang_id):

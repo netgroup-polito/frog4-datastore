@@ -42,8 +42,13 @@ def getYINFromYangID(yang_id):
 def addYANG_model(yang_id, yang_model):
     if yang_model == {}:
         raise ParseError(detail="no yang was provided") #the empty case is managed in such a way because django don't pass an empty body to the parser
+    found_yang = YANG_Models.objects.filter(yang_id=yang_id)
+    if len(found_yang) > 0:
+        return False
     yang = YANG_Models(yang_id=yang_id, yang_model=base64.b64encode(yang_model))
     yang.save()
+
+    return True
 
 
 @transaction.atomic
