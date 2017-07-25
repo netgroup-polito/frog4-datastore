@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from datastore.parsers.TextParser import PlainTextParser
 
 
 class UserAll(APIView):
@@ -24,9 +25,41 @@ class UserAll(APIView):
             return HttpResponse(status=404)
         return Response(data=users)
 
+    def post(self, request):
+        """
+            Create a new user
+              ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: user_and_password
+                    required: true
+                    paramType: body
+                    type: json
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
+                  - code: 422
+                    message: Missing password inside the body
+                  - code: 409
+                    message: The user already exists
+        """
+        if 'password' not in request.data:
+            return HttpResponse("No password was provided", status=422)
+        if 'username' not in request.data:
+            return HttpResponse("No username was provided", status=422)
+        username = request.data['username']
+        password = request.data['password']
+        res = API.addUser(username, password)
+        if not res:
+            return HttpResponse("The user " + username + " already exists", status=409)
+        return HttpResponse(status=200)
+
 
 class User(APIView):
-    parser_classes = (JSONParser,)
+    parser_classes = (PlainTextParser,)
 
     def get(self, request, user_id):
         """
@@ -50,39 +83,6 @@ class User(APIView):
             return HttpResponse(status=404)
         return Response(data=user)
 
-    def post(self, request, user_id):
-        """
-            Create a new user
-              ---
-              # YAML (must be separated by `---`)
-              parameters:
-                  - name: user_id
-                    required: true
-                    paramType: path
-                    type: string
-                  - name: password
-                    required: true
-                    paramType: body
-                    type: json
-
-              responseMessages:
-                  - code: 200
-                    message: Ok
-                  - code: 404
-                    message: Not found
-                  - code: 422
-                    message: Missing password inside the body
-                  - code: 409
-                    message: The user already exists
-        """
-        password = request.data
-        if password == "{}":
-            return HttpResponse("No password was provided", status=422)
-        res = API.addUser(user_id, password)
-        if not res:
-            return HttpResponse("The user " + user_id + " already exists", status=409)
-        return HttpResponse(status=200)
-
     def put(self, request, user_id):
         """
             Modify the password of a specific user
@@ -98,6 +98,8 @@ class User(APIView):
                     paramType: body
                     type: json
 
+              consumes:
+                  - text/plain
               responseMessages:
                   - code: 200
                     message: Ok

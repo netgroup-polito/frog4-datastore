@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from datastore.parsers.TextParser import PlainTextParser
 
 
 class VNFAll(APIView):
@@ -93,6 +94,8 @@ class VNF(APIView):
 
 
 class RestEndpoint(APIView):
+    parser_classes = (PlainTextParser,)
+
     def get(self, request, instance_id):
         """
             Get the REST endpoint of a specific VNF instance
@@ -131,6 +134,9 @@ class RestEndpoint(APIView):
                     required: true
                     paramType: body
                     type: string
+
+              consumes:
+                  - text/plain
 
               responseMessages:
                   - code: 200
@@ -229,6 +235,9 @@ class VNFBootingConfiguration(APIView):
                     required: true
                     paramType: body
                     type: json
+
+              consumes:
+                  - application/json
 
               responseMessages:
                   - code: 200

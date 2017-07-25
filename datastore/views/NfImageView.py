@@ -13,6 +13,7 @@ from datastore.models.MyChunkedUpload import My_ChunkedUpload
 from datastore.models.NfImage import VNF_Image
 import datastore.services.NfImageService as API
 import json
+from datastore.parsers.TextParser import PlainTextParser
 
 
 parser = SafeConfigParser()
@@ -32,6 +33,14 @@ class VNF_Image(APIView):
     def get(self, request, vnf_id):
         """
         Get the disk image of a VNF
+        ---
+              # YAML (must be separated by `---`)
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
         """
         res = API.getImage(vnf_id)
         if res is None:
@@ -45,6 +54,14 @@ class VNF_Image(APIView):
     def delete(self, request, vnf_id):
         """
         Remove a disk image for a VNF
+        ---
+              # YAML (must be separated by `---`)
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
         """
         if API.deleteImage(vnf_id):
             return HttpResponse(status=200)
@@ -53,6 +70,19 @@ class VNF_Image(APIView):
     def put(self, request, vnf_id):
         """
         Insert/update a disk image for a VNF.
+        ---
+              # YAML (must be separated by `---`)
+              parameters:
+                  - name: vnf_id
+                    required: true
+                    paramType: path
+                    type: string
+
+              responseMessages:
+                  - code: 200
+                    message: Ok
+                  - code: 404
+                    message: Not found
         """
         if not 'file' in request.data:
             return HttpResponse("No image was provided", status=422)
@@ -62,6 +92,8 @@ class VNF_Image(APIView):
 
 
 class Template(APIView):
+    parser_classes = (PlainTextParser,)
+
     def get(self, request, vnf_id):
         """
             Get the template of a specific VNF image
@@ -99,7 +131,10 @@ class Template(APIView):
                   - name: template_id
                     required: true
                     paramType: body
-                    type: json
+                    type: string
+
+              consumes:
+                  - text/plain
 
               responseMessages:
                   - code: 200
@@ -109,8 +144,6 @@ class Template(APIView):
                     code: 422
                     message: No configuration inserted into the body of the request
          """
-        if request.META['CONTENT_TYPE'] != 'application/json':
-            return HttpResponse(status=415)
         if request.data == {}:
             return HttpResponse("No template was provided", status=422)
 
