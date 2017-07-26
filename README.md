@@ -10,9 +10,9 @@ This project defines some minimal code needed to start a server that stores most
   * **User**: stores all the user information (username, password and broker keys). Moreover, the datastore provides a rudimental authentication service that can be exploited by all the FROG v.4 architecture components.
   * **VNF Configuration**: configuration that will be loaded into a VNF at booting time
   * **Active VNF**: stores information of the VNF that are currently active (instance ID, bootstrap configuration and REST endpoint that can be used in order to configure the VNF)
-  
-[here](https://github.com/netgroup-polito/frog4-datastore/blob/conf-orch-db/images/ER_model_datastore.pdf) can be found the ER model of the datastore.
 
+# ER diagram
+![alt text](https://github.com/netgroup-polito/frog4-datastore/blob/conf-orch-db/images/ER_model_datastore.jpg)
 
 ## How to install the Datastore dependencies and setup the SQL database
 
